@@ -23,11 +23,11 @@ setuptools.setup(
     python_requires='>=3.6',
     setup_requires=['setuptools-git', 'wheel'],
 
-    # entry_points={
-    #    'console_scripts': [
-    #        'script_name = package.module:entry_callable',
-    #    ],
-    # },
+    entry_points={
+       'console_scripts': [
+           'web-app = web.cli:main',
+       ],
+    },
 
     # Standard classifiers at https://pypi.org/classifiers/
     classifiers=[
