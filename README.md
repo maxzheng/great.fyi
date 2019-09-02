@@ -1,2 +1,3 @@
 # 1bead.org
-Web application for 1bead.org
+
+Web application for http://1bead.org

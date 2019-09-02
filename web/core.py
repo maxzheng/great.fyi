@@ -9,6 +9,11 @@ INDEX_HTML = """
 <body style="font-size: 120px; text-align: center">
         <h1>Mission</h1>
         Nurture the Greatness of Life
+
+        <h1>Goals</h1>
+        <ul>
+            <li>Promote awareness of <a href='http://agreatlife.life'>A Great Life Guide</a></li>
+        </ul>
 </body>
 </html>
 """
