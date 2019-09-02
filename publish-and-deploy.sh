@@ -13,7 +13,7 @@ echo [ Show what\'s running ]
 ps -eaf | grep web-app | grep -v grep
 
 echo [ Updating 1bead.org ]
-app update
+app update --wait 1bead.org
 
 echo [ Stop apps ]
 killall web-app
