@@ -1,21 +1,12 @@
 from aiohttp import web
+import aiohttp_jinja2
+import jinja2
 
+from web.routes import setup_routes
+from web.constants import PROJECT_ROOT
 
-INDEX_HTML = """
-<html>
-<head>
-        <title>1bead.org</title>
-</head>
-<body style="font-size: 120px; text-align: center">
-        <h1>Mission</h1>
-        Nurture the Greatness of Life
-</body>
-</html>
-"""
-
-
-async def handle(request):
-    return web.Response(text=INDEX_HTML, content_type='text/html')
 
 app = web.Application()
-app.add_routes([web.get('/', handle)])
+
+aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(str(PROJECT_ROOT / 'web' / 'templates')))
+setup_routes(app)

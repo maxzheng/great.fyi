@@ -25,7 +25,7 @@ echo [ Show what\'s running ]
 ps -eaf | grep web-app | grep -v grep
 
 echo [ Start apps ]
-web-app &>/tmp/web-app.out &
+web-app --port 80 &>/tmp/web-app.out &
 
 echo [ Wait a second to make sure apps stay up ]
 sleep 1
