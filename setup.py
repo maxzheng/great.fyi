@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='1bead.org',
-    version='0.0.4',
+    version='0.0.5',
 
     author='Max Zheng',
     author_email='maxzheng.os@gmail.com',
