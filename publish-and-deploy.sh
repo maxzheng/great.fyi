@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+wst test
+
 set -ex
 
 wst publish
