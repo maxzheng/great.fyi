@@ -1,5 +1,10 @@
-Version 0.0.6
+Version 0.0.7
 ================================================================================
+
+* Add logo from Kate
+
+Version 0.0.6
+--------------------------------------------------------------------------------
 
 * Switch to use React and Material-UI
 * Run test before publishing
