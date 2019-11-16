@@ -3,4 +3,4 @@ async def test_index(client):
     assert resp.status == 200
 
     text = await resp.text()
-    assert 'Greatness' in text
+    assert 'Great' in text
