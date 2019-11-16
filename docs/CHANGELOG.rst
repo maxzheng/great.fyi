@@ -1,5 +1,11 @@
-Version 0.0.5
+Version 0.0.6
 ================================================================================
+
+* Switch to use React and Material-UI
+* Run test before publishing
+
+Version 0.0.5
+--------------------------------------------------------------------------------
 
 * Temporarily remove static as we do not have any
 
