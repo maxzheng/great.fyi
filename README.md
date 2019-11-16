@@ -1,3 +1,3 @@
-# 1bead.org
+# greatlife.io
 
-Web application for http://1bead.org
+Web application for http://greatlife.io

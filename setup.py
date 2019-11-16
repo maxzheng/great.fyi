@@ -2,22 +2,22 @@ import setuptools
 
 
 setuptools.setup(
-    name='1bead.org',
+    name='greatlife.io',
     version='0.0.8',
 
     author='Max Zheng',
     author_email='maxzheng.os@gmail.com',
 
-    description='Web application for 1bead.org',
+    description='Web application for greatlife.io',
     long_description=open('README.md').read(),
 
-    url='https://github.com/maxzheng/1bead.org',
+    url='https://github.com/maxzheng/greatlife.io',
 
     install_requires=open('requirements.txt').read(),
 
     license='MIT',
 
-    packages=['web', 'static'],
+    packages=['web'],  # , 'static'],
     include_package_data=True,
 
     python_requires='>=3.6',
@@ -42,5 +42,5 @@ setuptools.setup(
       'Programming Language :: Python :: 3.6',
     ],
 
-    keywords='web appplication for 1bead.org to nurture the greatness of life',
+    keywords='web appplication for greatlife.io',
 )

@@ -6,7 +6,7 @@ set -ex
 
 wst publish
 
-ssh -T one-bead <<EOF
+ssh -T great-life <<EOF
 set -e
 
 sudo su -
@@ -14,8 +14,8 @@ sudo su -
 echo [ Show what\'s running ]
 ps -eaf | grep web-app | grep -v grep
 
-echo [ Updating 1bead.org ]
-app update --wait 1bead.org
+echo [ Updating greatlife.io ]
+app update --wait greatlife.io
 
 echo [ Stop apps ]
 killall web-app
