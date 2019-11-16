@@ -59,6 +59,18 @@ function Copyright() {
   );
 }
 
+function Logo() {
+  return (<pre>
+  ===========================<br />
+  =                         =<br />
+  =         O     O         =<br />
+  =                         =<br />
+  =            U            =<br />
+  =                         =<br />
+  ===========================<br />
+  </pre>)
+}
+
 function App() {
   return (
     <Container maxWidth="sm">
@@ -68,6 +80,7 @@ function App() {
         </Typography>
         <Typography variant="h4" component="h1" gutterBottom align='center'>
           Nurture the Greatness of Life
+        <Logo />
         </Typography>
         <Copyright />
       </div>
