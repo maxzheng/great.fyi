@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='greatlife.io',
-    version='0.0.10',
+    version='0.0.11',
 
     author='Max Zheng',
     author_email='maxzheng.os@gmail.com',
