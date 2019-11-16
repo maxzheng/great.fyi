@@ -3,7 +3,7 @@
   <head>
     <title>My page</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" />
+    <meta name="viewport" content="minimum-scale=0.5, initial-scale=0.7, width=device-width, shrink-to-fit=no" />
     <script src="https://unpkg.com/react@latest/umd/react.development.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/react-dom@latest/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@material-ui/core@latest/umd/material-ui.development.js" crossorigin="anonymous"></script>
@@ -60,7 +60,7 @@ function Copyright() {
 }
 
 function Logo() {
-  return (<pre>
+  return (<Typography variant="h4" component="h1" gutterBottom align='center'><pre>
   ===========================<br />
   =                         =<br />
   =         O     O         =<br />
@@ -68,20 +68,19 @@ function Logo() {
   =            U            =<br />
   =                         =<br />
   ===========================<br />
-  </pre>)
+  </pre></Typography>)
 }
 
 function App() {
   return (
     <Container maxWidth="sm">
       <div style={ { marginTop: 24, } }>
-        <Typography variant="h1" component="h1" gutterBottom align='center'>
-          Mission
-        </Typography>
-        <Typography variant="h4" component="h1" gutterBottom align='center'>
-          Nurture the Greatness of Life
+        <Link color='inherit' href='http://agreatlife.guide'>
+          <Typography variant="h3" component="h1" gutterBottom align='center'>
+            A Great Life Awaits You
+          </Typography>
+        </Link>
         <Logo />
-        </Typography>
         <Copyright />
       </div>
     </Container>
