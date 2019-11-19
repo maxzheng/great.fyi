@@ -17,7 +17,7 @@ setuptools.setup(
 
     license='MIT',
 
-    packages=['web'],  # , 'static'],
+    packages=['web', 'static'],
     include_package_data=True,
 
     python_requires='>=3.6',
