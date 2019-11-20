@@ -1,12 +1,14 @@
-from aiohttp import web
-import aiohttp_jinja2
-import jinja2
+from fastapi import FastAPI
+from starlette.requests import Request
+from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 
-from web.routes import setup_routes
-from web.constants import PROJECT_ROOT
+app = FastAPI()
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
+templates = Jinja2Templates(directory='templates')
 
 
-app = web.Application()
-
-aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(str(PROJECT_ROOT / 'web' / 'templates')))
-setup_routes(app)
+@app.get('/')
+async def index(request: Request):
+    return templates.TemplateResponse('index.html', {'request': request})

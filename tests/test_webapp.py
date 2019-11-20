@@ -1,6 +1,5 @@
-async def test_index(client):
-    resp = await client.get('/')
-    assert resp.status == 200
+def test_index(client):
+    resp = client.get('/')
 
-    text = await resp.text()
-    assert 'Great' in text
+    assert resp.status_code == 200
+    assert 'Great' in resp.text

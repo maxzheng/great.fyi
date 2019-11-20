@@ -1,1 +1,1 @@
-aiohttp-devtools runserver web/core.py --host 0.0.0.0 --port 5000
+uvicorn web.core:app --reload --port 5000 --host 0.0.0.0
