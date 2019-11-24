@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 const homeTitle = 'Great FYI';
-const foodTitle = 'Delicious Food';
+const foodTitle = 'Delicious Food Reviews';
 const lifeGuideTitle = 'A Great Life Guide';
 
 const drawerWidth = 240;
@@ -79,12 +79,12 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 function Home(props) {
   return (<div>
     <Typography paragraph>
-      Everything that you need to know to be great!
+      Everything you need to know to be great!
     </Typography>
     <Typography paragraph>
       We have <Link href='#food' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#life-guide' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
     </Typography>
-    <Typography variant="h5" gutterBottom>
+    <Typography variant="h5" gutterBottom align='center'>
       <pre>
       ===========================<br />
       =                         =<br />
@@ -137,7 +137,7 @@ function Copyright() {
   );
 }
 
-function Food() {
+function FoodReviews() {
   return <div>Yummy yum yum</div>
 }
 
@@ -156,7 +156,7 @@ function ResponsiveDrawer(props) {
       <div className={classes.toolbar} />
       <Divider />
       <List>
-        {['Food'].map((text, index) => (
+        {['Food Reviews'].map((text, index) => (
                     <ListItem button key={text} onClick={ () => { setTitle(foodTitle);
                                                                   setMobileOpen(false) } } >
                       <ListItemIcon><FastfoodIcon /></ListItemIcon>
@@ -226,7 +226,7 @@ function ResponsiveDrawer(props) {
         <div className={classes.toolbar} />
         { title == homeTitle && <Home setTitle={setTitle} /> }
         { title == lifeGuideTitle && <LifeGuide /> }
-        { title == foodTitle && <Food /> }
+        { title == foodTitle && <FoodReviews /> }
         <Copyright />
       </main>
     </div>
