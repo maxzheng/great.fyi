@@ -23,6 +23,10 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
+const homeTitle = 'Great FYI';
+const foodTitle = 'Delicious Food';
+const lifeGuideTitle = 'A Great Life Guide';
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
@@ -63,19 +67,26 @@ const useStyles = makeStyles(theme => ({
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
 
 
-function Home() {
-  return (<Typography variant="h4" component="h1" gutterBottom align='center'>
-    A Great Life Awaits You
-    <pre>
-    ===========================<br />
-    =                         =<br />
-    =         O     O         =<br />
-    =                         =<br />
-    =            U            =<br />
-    =                         =<br />
-    ===========================<br />
-    </pre>
-  </Typography>)
+function Home(props) {
+  return (<div>
+    <Typography paragraph>
+      Everything that you need to know to be great!
+    </Typography>
+    <Typography paragraph>
+      We have <Link href='#food' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#life-guide' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
+    </Typography>
+    <Typography variant="h5" gutterBottom align='center'>
+      <pre>
+      ===========================<br />
+      =                         =<br />
+      =         O     O         =<br />
+      =                         =<br />
+      =            U            =<br />
+      =                         =<br />
+      ===========================<br />
+      </pre>
+    </Typography>
+  </div>)
 }
 
 
@@ -107,7 +118,8 @@ function LifeGuide(props) {
 
 function Copyright() {
   return (
-    <Typography variant="body2" color="textSecondary" align="left">
+    <Typography variant="body2" color="textSecondary" align="center">
+      <br />
       {'Copyright © '}
       <Link color="inherit" href="http://1bead.org/">
         1 BEAD
@@ -116,11 +128,15 @@ function Copyright() {
   );
 }
 
-function ResponsiveDrawer(props) {
-    const { container } = props;
+function Food() {
+  return <div>Yummy yum yum</div>
+}
+
+function ResponsiveDrawer() {
     const classes = useStyles();
     const theme = useTheme();
     const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [title, setTitle] = React.useState(homeTitle);
 
     const handleDrawerToggle = () => {
           setMobileOpen(!mobileOpen);
@@ -132,7 +148,8 @@ function ResponsiveDrawer(props) {
             <Divider />
             <List>
               {['Food'].map((text, index) => (
-                          <ListItem button key={text}>
+                          <ListItem button key={text} onClick={ () => { setTitle(foodTitle);
+                                                                        setMobileOpen(false) } } >
                             <ListItemIcon><FastfoodIcon /></ListItemIcon>
                             <ListItemText primary={text} />
                           </ListItem>
@@ -141,7 +158,8 @@ function ResponsiveDrawer(props) {
             <Divider />
             <List>
               {['Life Guide'].map((text, index) => (
-                          <ListItem button key={text}>
+                          <ListItem button key={text} onClick={ () => { setTitle(lifeGuideTitle);
+                                                                        setMobileOpen(false) } } >
                             <ListItemIcon><MenuBookIcon /></ListItemIcon>
                             <ListItemText primary={text} />
                           </ListItem>
@@ -165,7 +183,7 @@ function ResponsiveDrawer(props) {
                   <MenuIcon />
                 </IconButton>
                 <Typography variant="h6" noWrap>
-                  Great Life!
+                  {title}
                 </Typography>
               </Toolbar>
             </AppBar>
@@ -173,14 +191,11 @@ function ResponsiveDrawer(props) {
               {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
               <Hidden smUp implementation="css">
                 <Drawer
-                  container={container}
                   variant="temporary"
                   anchor={theme.direction === 'rtl' ? 'right' : 'left'}
                   open={mobileOpen}
                   onClose={handleDrawerToggle}
-                  classes={{
-                                  paper: classes.drawerPaper,
-                                  }}
+                  classes={{ paper: classes.drawerPaper, }}
                   ModalProps={{
                                   keepMounted: true, // Better open performance on mobile.
                                   }}
@@ -200,20 +215,14 @@ function ResponsiveDrawer(props) {
             </nav>
             <main className={classes.content}>
               <div className={classes.toolbar} />
-              <LifeGuide />
+              { title == homeTitle && <Home setTitle={setTitle} /> }
+              { title == lifeGuideTitle && <LifeGuide /> }
+              { title == foodTitle && <Food /> }
               <Copyright />
             </main>
           </div>
         );
 }
-
-ResponsiveDrawer.propTypes = {
-    /**
-     *    * Injected by the documentation to work in an iframe.
-     *       * You won't need it on your project.
-     *          */
-    container: PropTypes.instanceOf(typeof Element === 'undefined' ? Object : Element),
-};
 
 function App() {
   return (
