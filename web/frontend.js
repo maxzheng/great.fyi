@@ -11,6 +11,7 @@ import Drawer from '@material-ui/core/Drawer';
 import FastfoodIcon from '@material-ui/icons/Fastfood';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Hidden from '@material-ui/core/Hidden';
+import HomeIcon from '@material-ui/icons/Home';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
@@ -23,7 +24,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
-const homeTitle = 'Great FYI';
+const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodTitle = 'Delicious Food Reviews';
 const lifeGuideTitle = 'A Great Life Guide';
 
@@ -78,9 +79,6 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 
 function Home(props) {
   return (<div>
-    <Typography paragraph>
-      Everything you need to know to be great!
-    </Typography>
     <Typography paragraph>
       We have <Link href='#food' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#life-guide' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
     </Typography>
@@ -153,7 +151,15 @@ function ResponsiveDrawer(props) {
 
   const drawer = (
     <div>
-      <div className={classes.toolbar} />
+      <List>
+        {['Great FYI'].map((text, index) => (
+                    <ListItem button key={text} onClick={ () => { setTitle(homeTitle);
+                                                                  setMobileOpen(false) } } >
+                      <ListItemIcon><HomeIcon /></ListItemIcon>
+                      <ListItemText primary={text} />
+                    </ListItem>
+                  ))}
+      </List>
       <Divider />
       <List>
         {['Food Reviews'].map((text, index) => (
