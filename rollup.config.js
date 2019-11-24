@@ -4,9 +4,9 @@ import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace'
 
 export default {
-    input: 'src/main.js',
+    input: 'web/frontend.js',
     output: {
-          file: 'static/bundle.js',
+          file: 'static/frontend.js',
           format: 'iife',
           name: 'main'
         },

@@ -2,7 +2,7 @@
   "name": "greatlife.io",
   "version": "0.0.1",
   "description": "Web application for http://greatlife.io",
-  "main": "main.js",
+  "main": "web/frontend.js",
   "directories": {
     "doc": "docs",
     "test": "tests"
