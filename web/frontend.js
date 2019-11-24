@@ -75,7 +75,7 @@ function Home(props) {
     <Typography paragraph>
       We have <Link href='#food' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#life-guide' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
     </Typography>
-    <Typography variant="h5" gutterBottom align='center'>
+    <Typography variant="h5" gutterBottom>
       <pre>
       ===========================<br />
       =                         =<br />
@@ -226,7 +226,7 @@ function ResponsiveDrawer() {
 
 function App() {
   return (
-    <Container maxWidth={false}>
+    <Container maxWidth='xl'>
       <ResponsiveDrawer />
     </Container>
   );
