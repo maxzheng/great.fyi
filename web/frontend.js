@@ -80,7 +80,7 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 function Home(props) {
   return (<div>
     <Typography paragraph>
-      We have <Link href='#food' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#life-guide' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
+      We have <Link href='#' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
     </Typography>
     <Typography variant="h5" gutterBottom align='center'>
       <pre>
@@ -118,7 +118,7 @@ function LifeGuide(props) {
       Easily remember the steps using the acronym <Bold>1 BEAD</Bold> from the first word/letter of each step. Each step must be done successfully in order so the next step is easier to do. It takes time to master each step, but the results are immediate and increasingly substantial. When things are not going as expected, take a timeout to rest and reflect using the steps. Mastery is achieved when all steps are followed consistently and naturally for everything that you do and are done using <Bold>100%</Bold> of your energies with at least 1% for being mindful always. And voilà, a great life!
     </Typography>
     <Typography paragraph>
-      <span style={{ fontStyle: 'italic' }}>Note: This is v3.7 release of <Link color='inherit' href='https://github.com/maxzheng/great-life-guide'>https://github.com/maxzheng/great-life-guide</Link> to allow for easy sharing, liking, or commenting</span>
+      <span style={{ fontStyle: 'italic' }}>Note: This is v3.7 release of <Link color='inherit' href='https://github.com/maxzheng/great-life-guide' target="_blank">https://github.com/maxzheng/great-life-guide</Link> to allow for easy sharing, liking, or commenting</span>
     </Typography>
   </div>)
 }
@@ -128,7 +128,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       <br />
       {'Copyright © '}
-      <Link color="inherit" href="http://1bead.org/">
+      <Link color="inherit" href="http://1bead.org/" target="_blank">
         1 BEAD
       </Link>
     </Typography>
