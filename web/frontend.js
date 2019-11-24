@@ -31,36 +31,45 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
-        display: 'flex',
-      },
+    display: 'flex',
+  },
+  container: {
+    maxWidth: '100em',
+    paddingLeft: '1em',
+    paddingRight: '1em',
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: '2em',
+      paddingRight: '2em',
+    },
+  },
   drawer: {
-        [theme.breakpoints.up('sm')]: {
-                width: drawerWidth - 30,
-                flexShrink: 0,
-              },
-      },
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth - 30,
+      flexShrink: 0,
+    },
+  },
   appBar: {
-        [theme.breakpoints.up('sm')]: {
-                width: `calc(100% - ${drawerWidth}px)`,
-                marginLeft: drawerWidth,
-              },
-      },
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: drawerWidth,
+    },
+  },
   menuButton: {
-        marginRight: theme.spacing(2),
-        [theme.breakpoints.up('sm')]: {
-                display: 'none',
-              },
-      },
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
-      width: drawerWidth,
+    width: drawerWidth,
   },
   content: {
-        flexGrow: 1,
-        paddingTop: theme.spacing(2),
-        [theme.breakpoints.up('sm')]: {
-          padding: theme.spacing(3),
-        },
+    flexGrow: 1,
+    paddingTop: theme.spacing(1.5),
+    [theme.breakpoints.up('sm')]: {
+      padding: theme.spacing(3),
+    },
   },
 }));
 
@@ -132,103 +141,105 @@ function Food() {
   return <div>Yummy yum yum</div>
 }
 
-function ResponsiveDrawer() {
-    const classes = useStyles();
-    const theme = useTheme();
-    const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [title, setTitle] = React.useState(homeTitle);
+function ResponsiveDrawer(props) {
+  const classes = props.classes
+  const theme = useTheme();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [title, setTitle] = React.useState(homeTitle);
 
-    const handleDrawerToggle = () => {
-          setMobileOpen(!mobileOpen);
-        };
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
-    const drawer = (
-          <div>
-            <div className={classes.toolbar} />
-            <Divider />
-            <List>
-              {['Food'].map((text, index) => (
-                          <ListItem button key={text} onClick={ () => { setTitle(foodTitle);
-                                                                        setMobileOpen(false) } } >
-                            <ListItemIcon><FastfoodIcon /></ListItemIcon>
-                            <ListItemText primary={text} />
-                          </ListItem>
-                        ))}
-            </List>
-            <Divider />
-            <List>
-              {['Life Guide'].map((text, index) => (
-                          <ListItem button key={text} onClick={ () => { setTitle(lifeGuideTitle);
-                                                                        setMobileOpen(false) } } >
-                            <ListItemIcon><MenuBookIcon /></ListItemIcon>
-                            <ListItemText primary={text} />
-                          </ListItem>
-                        ))}
-            </List>
-          </div>
-        );
+  const drawer = (
+    <div>
+      <div className={classes.toolbar} />
+      <Divider />
+      <List>
+        {['Food'].map((text, index) => (
+                    <ListItem button key={text} onClick={ () => { setTitle(foodTitle);
+                                                                  setMobileOpen(false) } } >
+                      <ListItemIcon><FastfoodIcon /></ListItemIcon>
+                      <ListItemText primary={text} />
+                    </ListItem>
+                  ))}
+      </List>
+      <Divider />
+      <List>
+        {['Life Guide'].map((text, index) => (
+                    <ListItem button key={text} onClick={ () => { setTitle(lifeGuideTitle);
+                                                                  setMobileOpen(false) } } >
+                      <ListItemIcon><MenuBookIcon /></ListItemIcon>
+                      <ListItemText primary={text} />
+                    </ListItem>
+                  ))}
+      </List>
+    </div>
+  );
 
-    return (
-          <div className={classes.root}>
-            <CssBaseline />
-            <AppBar position="fixed" className={classes.appBar}>
-              <Toolbar>
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  edge="start"
-                  onClick={handleDrawerToggle}
-                  className={classes.menuButton}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" noWrap>
-                  {title}
-                </Typography>
-              </Toolbar>
-            </AppBar>
-            <nav className={classes.drawer} aria-label="mailbox folders">
-              {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-              <Hidden smUp implementation="css">
-                <Drawer
-                  variant="temporary"
-                  anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                  open={mobileOpen}
-                  onClose={handleDrawerToggle}
-                  classes={{ paper: classes.drawerPaper, }}
-                  ModalProps={{
-                                  keepMounted: true, // Better open performance on mobile.
-                                  }}
-                >
-                  {drawer}
-                </Drawer>
-              </Hidden>
-              <Hidden xsDown implementation="css">
-                <Drawer
-                  classes={{ paper: classes.drawerPaper, }}
-                  variant="permanent"
-                  open
-                >
-                  {drawer}
-                </Drawer>
-              </Hidden>
-            </nav>
-            <main className={classes.content}>
-              <div className={classes.toolbar} />
-              { title == homeTitle && <Home setTitle={setTitle} /> }
-              { title == lifeGuideTitle && <LifeGuide /> }
-              { title == foodTitle && <Food /> }
-              <Copyright />
-            </main>
-          </div>
-        );
+  return (
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            className={classes.menuButton}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap>
+            {title}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <nav className={classes.drawer} aria-label="mailbox folders">
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Hidden smUp implementation="css">
+          <Drawer
+            variant="temporary"
+            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            classes={{ paper: classes.drawerPaper, }}
+            ModalProps={{
+                            keepMounted: true, // Better open performance on mobile.
+                            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+        <Hidden xsDown implementation="css">
+          <Drawer
+            classes={{ paper: classes.drawerPaper, }}
+            variant="permanent"
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+      </nav>
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        { title == homeTitle && <Home setTitle={setTitle} /> }
+        { title == lifeGuideTitle && <LifeGuide /> }
+        { title == foodTitle && <Food /> }
+        <Copyright />
+      </main>
+    </div>
+  );
 }
 
 function App() {
+  const classes = useStyles();
+
   return (
-    <Container maxWidth='sm'>
-      <ResponsiveDrawer />
-    </Container>
+    <div className={classes.container}>
+      <ResponsiveDrawer classes={classes}/>
+    </div >
   );
 }
 
