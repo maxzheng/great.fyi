@@ -226,7 +226,7 @@ function ResponsiveDrawer() {
 
 function App() {
   return (
-    <Container maxWidth='xl'>
+    <Container maxWidth='lg'>
       <ResponsiveDrawer />
     </Container>
   );
