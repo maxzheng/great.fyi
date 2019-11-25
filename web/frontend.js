@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
 import AppBar from '@material-ui/core/AppBar';
+import Box from '@material-ui/core/Box'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
@@ -20,9 +21,15 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import MenuIcon from '@material-ui/icons/Menu';
+import ShareIcon from '@material-ui/icons/Share';
+import SpeedDial from '@material-ui/lab/SpeedDial';
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon,
+         EmailShareButton, EmailIcon } from 'react-share';
 
 const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodTitle = 'Delicious Food Reviews';
@@ -72,7 +79,27 @@ const useStyles = makeStyles(theme => ({
       padding: theme.spacing(3),
     },
   },
+  speedDial: {
+    position: 'absolute',
+    '&.MuiSpeedDial-directionUp, &.MuiSpeedDial-directionLeft': {
+      bottom: theme.spacing(2),
+      right: theme.spacing(2),
+    },
+    '&.MuiSpeedDial-directionDown, &.MuiSpeedDial-directionRight': {
+      top: theme.spacing(2),
+      left: theme.spacing(2),
+    },
+  },
+  iconHover: {
+    '&:hover': {
+      opacity: 0.75
+    }
+  }
 }));
+
+const actions = [
+  { icon: <ShareIcon />, name: 'Share' },
+];
 
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
 
@@ -137,6 +164,39 @@ function Copyright() {
 
 function FoodReviews() {
   return <div>Yummy yum yum</div>
+}
+
+function SpeedDials(props) {
+  const classes = props.classes
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  return (<Box position='fixed' bottom='1em' right='1em'>
+    <SpeedDial
+      ariaLabel="SpeedDials"
+      className={classes.speedDial}
+      icon={<SpeedDialIcon />}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      open={open}
+    >
+      {actions.map(action => (
+        <SpeedDialAction
+          key={action.name}
+          icon={action.icon}
+          tooltipTitle={action.name}
+          onClick={handleClose}
+        />
+      ))}
+    </SpeedDial></Box>
+  );
 }
 
 function ResponsiveDrawer(props) {
@@ -233,6 +293,21 @@ function ResponsiveDrawer(props) {
         { title == homeTitle && <Home setTitle={setTitle} /> }
         { title == lifeGuideTitle && <LifeGuide /> }
         { title == foodTitle && <FoodReviews /> }
+        <Box display="flex" flexDirection="row" p={1} m={1} justifyContent="center">
+          <ShareIcon style={{marginTop: '0.15em'}} color='disabled'/>
+          <FacebookShareButton url={window.location.href}>
+            <FacebookIcon size={32} className={classes.iconHover} />
+          </FacebookShareButton>
+          <LinkedinShareButton url={window.location.href}>
+            <LinkedinIcon size={32} className={classes.iconHover} />
+          </LinkedinShareButton>
+          <TwitterShareButton url={window.location.href}>
+            <TwitterIcon size={32} className={classes.iconHover} />
+          </TwitterShareButton>
+          <EmailShareButton url={window.location.href} openWindow={true}>
+            <EmailIcon size={32} className={classes.iconHover} />
+          </EmailShareButton>
+        </Box>
         <Copyright />
       </main>
     </div>
