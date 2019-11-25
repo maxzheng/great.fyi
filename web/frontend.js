@@ -30,6 +30,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon,
          EmailShareButton, EmailIcon } from 'react-share';
+import { BrowserRouter as Router, Switch, Route, Link as RLink, useRouteMatch, useParams } from "react-router-dom";
 
 const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodReviewsTitle = 'Delicious Food Reviews';
@@ -68,6 +69,10 @@ const useStyles = makeStyles(theme => ({
       display: 'none',
     },
   },
+  menuItemLink: {
+    color: 'black',
+    textDecoration: 'none'
+  },
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
     width: drawerWidth,
@@ -104,10 +109,30 @@ const actions = [
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
 
 
+function ShareButtons(props) {
+  return (
+    <Box display="flex" flexDirection="row" p={1} m={1} justifyContent="center">
+      <ShareIcon style={{marginTop: '0.15em'}} color='disabled'/>
+      <FacebookShareButton url={window.location.href}>
+        <FacebookIcon size={32} className={props.classes.iconHover} />
+      </FacebookShareButton>
+      <LinkedinShareButton url={window.location.href}>
+        <LinkedinIcon size={32} className={props.classes.iconHover} />
+      </LinkedinShareButton>
+      <TwitterShareButton url={window.location.href}>
+        <TwitterIcon size={32} className={props.classes.iconHover} />
+      </TwitterShareButton>
+      <EmailShareButton url={window.location.href} openWindow={true}>
+        <EmailIcon size={32} className={props.classes.iconHover} />
+      </EmailShareButton>
+    </Box>
+  )
+}
+
 function Home(props) {
   return (<div>
     <Typography paragraph>
-      We have <Link href='#' onClick={(e) => props.setTitle(foodReviewsTitle)}>delicious food reviews</Link> and <Link href='#' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
+      We have <RLink to='/food-reviews'>delicious food reviews</RLink> and <RLink to='/life-guide'>a great life guide</RLink> so far. More to come later!
     </Typography>
     <Typography variant="h5" gutterBottom align='center'>
       <pre>
@@ -120,6 +145,7 @@ function Home(props) {
       ===========================<br />
       </pre>
     </Typography>
+    <ShareButtons classes={props.classes} />
   </div>)
 }
 
@@ -147,6 +173,7 @@ function LifeGuide(props) {
     <Typography paragraph>
       <span style={{ fontStyle: 'italic' }}>Note: This is v3.7 release of <Link color='inherit' href='https://github.com/maxzheng/great-life-guide' target="_blank">https://github.com/maxzheng/great-life-guide</Link> to allow for easy sharing, liking, or commenting</span>
     </Typography>
+    <ShareButtons classes={props.classes} />
   </div>)
 }
 
@@ -162,8 +189,13 @@ function Copyright() {
   );
 }
 
-function FoodReviews() {
-  return <div>Yummy yum yum</div>
+function FoodReviews(props) {
+  let match = useRouteMatch();
+  return (
+    <div>Yummy yum yum
+    <ShareButtons classes={props.classes} />
+    </div>
+  )
 }
 
 function SpeedDials(props) {
@@ -210,21 +242,36 @@ function ResponsiveDrawer(props) {
   };
 
   const menu = {
-    // Item:     [Icon, Title, Divider]
-    'Great FYI': [<HomeIcon />, homeTitle, true],
-    'Food Reviews': [<FastfoodIcon/>, foodReviewsTitle, true],
-    'Life Guide': [<MenuBookIcon />, lifeGuideTitle, false],
+    '/': {
+      name: 'Great FYI',
+      icon: <HomeIcon />,
+      title: homeTitle,
+      divider: true
+    },
+    '/food-reviews': {
+      name: 'Food Reviews',
+      icon: <FastfoodIcon/>,
+      title: foodReviewsTitle,
+      divider: true
+    },
+    '/life-guide': {
+      name: 'Life Guide',
+      icon: <MenuBookIcon />,
+      title: lifeGuideTitle,
+      divider: false
+    },
   }
 
   const menuItems = []
-  for (const [item, [icon, title, divider]] of Object.entries(menu)) {
+  for (const [path, {name, icon, title, divider}] of Object.entries(menu)) {
     menuItems.push(
       <div>
-        <ListItem button key={item} onClick={ () => { setTitle(title);
-                                                      setMobileOpen(false) } } >
-          <ListItemIcon>{icon}</ListItemIcon>
-          <ListItemText primary={item} />
-        </ListItem>
+        <RLink to={path} className={classes.menuItemLink}>
+          <ListItem button key={name} onClick={() => { setMobileOpen(false) }} >
+            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemText primary={name} />
+          </ListItem>
+        </RLink>
         { divider == true && <Divider /> }
       </div>
     )
@@ -277,37 +324,42 @@ function ResponsiveDrawer(props) {
       </nav>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        { title == homeTitle && <Home setTitle={setTitle} /> }
-        { title == lifeGuideTitle && <LifeGuide /> }
-        { title == foodReviewsTitle && <FoodReviews /> }
-        <Box display="flex" flexDirection="row" p={1} m={1} justifyContent="center">
-          <ShareIcon style={{marginTop: '0.15em'}} color='disabled'/>
-          <FacebookShareButton url={window.location.href}>
-            <FacebookIcon size={32} className={classes.iconHover} />
-          </FacebookShareButton>
-          <LinkedinShareButton url={window.location.href}>
-            <LinkedinIcon size={32} className={classes.iconHover} />
-          </LinkedinShareButton>
-          <TwitterShareButton url={window.location.href}>
-            <TwitterIcon size={32} className={classes.iconHover} />
-          </TwitterShareButton>
-          <EmailShareButton url={window.location.href} openWindow={true}>
-            <EmailIcon size={32} className={classes.iconHover} />
-          </EmailShareButton>
-        </Box>
+        <Switch>
+          <Route path='/food-reviews'>
+            <FoodReviews classes={classes} />
+          </Route>
+          <Route path='/life-guide'>
+            <LifeGuide classes={classes} />
+          </Route>
+          <Route path='/'>
+            <Home classes={classes} />
+          </Route>
+        </Switch>
+        <Route path='/:page?'>
+          <TitleChanger setTitle={setTitle} menu={menu} />
+        </Route>
         <Copyright />
       </main>
     </div>
   );
 }
 
+function TitleChanger(props) {
+  let { page } = useParams();
+  name = page ? '/' + page : '/'
+  props.setTitle(props.menu[name].title)
+  return null
+}
+
 function App() {
   const classes = useStyles();
 
   return (
-    <div className={classes.container}>
-      <ResponsiveDrawer classes={classes}/>
-    </div >
+    <Router>
+      <div className={classes.container}>
+        <ResponsiveDrawer classes={classes}/>
+      </div >
+    </Router>
   );
 }
 
