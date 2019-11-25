@@ -32,7 +32,7 @@ import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, T
          EmailShareButton, EmailIcon } from 'react-share';
 
 const homeTitle = 'Everything You Need to Know to Be Great!';
-const foodTitle = 'Delicious Food Reviews';
+const foodReviewsTitle = 'Delicious Food Reviews';
 const lifeGuideTitle = 'A Great Life Guide';
 
 const drawerWidth = 240;
@@ -107,7 +107,7 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 function Home(props) {
   return (<div>
     <Typography paragraph>
-      We have <Link href='#' onClick={(e) => props.setTitle(foodTitle)}>delicious food reviews</Link> and <Link href='#' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
+      We have <Link href='#' onClick={(e) => props.setTitle(foodReviewsTitle)}>delicious food reviews</Link> and <Link href='#' onClick={(e) => props.setTitle(lifeGuideTitle)}>a great life guide</Link> so far. More to come later!
     </Typography>
     <Typography variant="h5" gutterBottom align='center'>
       <pre>
@@ -136,7 +136,7 @@ function LifeGuide(props) {
     <ol>
       <li><Bold>One thing at a time.</Bold> There are many things going on in life, and so life seems complicated, but realistically, we can do or think about one thing at a time. If we do just that, life becomes simple, and things actually get done faster with higher quality.</li>
       <li><Bold>Be mindful with acceptance.</Bold> This lets you fully take in, understand, and enjoy what's currently happening (i.e. moments of life) without judgement or expectations. Meditate to train mindfulness by focusing on your breath or positive thoughts and emotions -- learn from and let go of negative ones and everything else. With everything that that you do, be focused while being aware of the surrounding. Then you are peaceful, and nothing from the outside can disturb you -- no matter what others say or do to you. Happiness starts from here.</li>
-      <li><Bold>Energize your body, passion, and mind.</Bold> Those are the raw energies that enable you to do everything at peak performance. Exercise regularly to build up energy in your body. Do what you love, enjoy everything that you do, and be your true self to let your passion flow freely and wildly. Always keep learning and thinking to push the boundary of your mind. Finally don't forget to rest well to rejuvenate. Keep your heart pumping fast and live passionately! <FavoriteIcon color='secondary'/></li>
+      <li><Bold>Energize your body, passion, and mind.</Bold> Those are the raw energies that enable you to do everything at peak performance. Exercise regularly to build up energy in your body. Do what you love, enjoy everything that you do, and be your true self to let your passion flow freely and wildly. Always keep learning and thinking to push the boundary of your mind. Finally don't forget to rest well to rejuvenate. Keep your heart pumping fast and live passionately! <FavoriteIcon color='secondary' style={{position: 'relative', top: '0.2em', marginTop: '-0.3em'}} /></li>
       <li><Bold>Aim at your target.</Bold> There must be a target (e.g. task, goal, mission) at any time as it provides the direction for what you want to do so you don't wander around aimlessly. There can be many targets, but aim at only one for a period of time to make good progress, then your life is fruitful. Set a goal for each day (e.g., today's goal is to relax and have fun). As there are many targets, you should set at least one life goal -- the big things that you want to do with your life. Prioritize the targets based on important values to get the highest return on your time.</li>
       <li><Bold>Do the right thing in the right way.</Bold> That is the fastest way to get everything you want as doing the wrong thing requires redo and some things can not be undone. Sometimes it's tempting to do the wrong things for a quick / short-term gain, but there are always consequences. In the long run, doing the right thing wins as it builds momentum from previous accomplishments. The right things to do are meaningful. It is equally important to do things in the right way with everything that you got and don't let anything hold you back, so you get the most out of time. Always understand why you do something before how.</li>
     </ol>
@@ -209,39 +209,26 @@ function ResponsiveDrawer(props) {
     setMobileOpen(!mobileOpen);
   };
 
-  const drawer = (
-    <div>
-      <List>
-        {['Great FYI'].map((text, index) => (
-                    <ListItem button key={text} onClick={ () => { setTitle(homeTitle);
-                                                                  setMobileOpen(false) } } >
-                      <ListItemIcon><HomeIcon /></ListItemIcon>
-                      <ListItemText primary={text} />
-                    </ListItem>
-                  ))}
-      </List>
-      <Divider />
-      <List>
-        {['Food Reviews'].map((text, index) => (
-                    <ListItem button key={text} onClick={ () => { setTitle(foodTitle);
-                                                                  setMobileOpen(false) } } >
-                      <ListItemIcon><FastfoodIcon /></ListItemIcon>
-                      <ListItemText primary={text} />
-                    </ListItem>
-                  ))}
-      </List>
-      <Divider />
-      <List>
-        {['Life Guide'].map((text, index) => (
-                    <ListItem button key={text} onClick={ () => { setTitle(lifeGuideTitle);
-                                                                  setMobileOpen(false) } } >
-                      <ListItemIcon><MenuBookIcon /></ListItemIcon>
-                      <ListItemText primary={text} />
-                    </ListItem>
-                  ))}
-      </List>
-    </div>
-  );
+  const menu = {
+    // Item:     [Icon, Title, Divider]
+    'Great FYI': [<HomeIcon />, homeTitle, true],
+    'Food Reviews': [<FastfoodIcon/>, foodReviewsTitle, true],
+    'Life Guide': [<MenuBookIcon />, lifeGuideTitle, false],
+  }
+
+  const menuItems = []
+  for (const [item, [icon, title, divider]] of Object.entries(menu)) {
+    menuItems.push(
+      <div>
+        <ListItem button key={item} onClick={ () => { setTitle(title);
+                                                      setMobileOpen(false) } } >
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText primary={item} />
+        </ListItem>
+        { divider == true && <Divider /> }
+      </div>
+    )
+  }
 
   return (
     <div className={classes.root}>
@@ -275,7 +262,7 @@ function ResponsiveDrawer(props) {
                             keepMounted: true, // Better open performance on mobile.
                             }}
           >
-            {drawer}
+            <List>{menuItems}</List>
           </Drawer>
         </Hidden>
         <Hidden xsDown implementation="css">
@@ -284,7 +271,7 @@ function ResponsiveDrawer(props) {
             variant="permanent"
             open
           >
-            {drawer}
+            <List>{menuItems}</List>
           </Drawer>
         </Hidden>
       </nav>
@@ -292,7 +279,7 @@ function ResponsiveDrawer(props) {
         <div className={classes.toolbar} />
         { title == homeTitle && <Home setTitle={setTitle} /> }
         { title == lifeGuideTitle && <LifeGuide /> }
-        { title == foodTitle && <FoodReviews /> }
+        { title == foodReviewsTitle && <FoodReviews /> }
         <Box display="flex" flexDirection="row" p={1} m={1} justifyContent="center">
           <ShareIcon style={{marginTop: '0.15em'}} color='disabled'/>
           <FacebookShareButton url={window.location.href}>
