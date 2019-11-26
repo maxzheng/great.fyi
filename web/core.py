@@ -9,6 +9,6 @@ app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
 
-@app.get('/{any:path}')
-async def index(request: Request, any: str):
+@app.get('/{ignored:path}')
+async def index(request: Request, ignored: str):
     return templates.TemplateResponse('index.html', {'request': request})

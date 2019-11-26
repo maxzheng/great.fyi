@@ -11,6 +11,9 @@ import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import FastfoodIcon from '@material-ui/icons/Fastfood';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import GridListTileBar from '@material-ui/core/GridListTileBar';
 import Hidden from '@material-ui/core/Hidden';
 import HomeIcon from '@material-ui/icons/Home';
 import IconButton from '@material-ui/core/IconButton';
@@ -25,12 +28,16 @@ import ShareIcon from '@material-ui/icons/Share';
 import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon,
          EmailShareButton, EmailIcon } from 'react-share';
 import { BrowserRouter as Router, Switch, Route, Link as RLink, useRouteMatch, useParams } from "react-router-dom";
+
+import chunk from 'lodash.chunk'
 
 const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodReviewsTitle = 'Delicious Food Reviews';
@@ -99,7 +106,29 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       opacity: 0.75
     }
-  }
+  },
+  foodRoot: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    overflow: 'hidden',
+  },
+  foodGridList: {
+    flexWrap: 'nowrap',
+    // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+    transform: 'translateZ(0)',
+    backgroundColor: theme.palette.background.paper,
+  },
+  foodGridListTile: {
+    marginBottom: '0.4em'
+  },
+  foodTitle: {
+    color: 'white',
+  },
+  foodTitleBar: {
+    background:
+      'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+  },
 }));
 
 const actions = [
@@ -112,7 +141,6 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 function ShareButtons(props) {
   return (
     <Box display="flex" flexDirection="row" p={1} m={1} justifyContent="center">
-      <ShareIcon style={{marginTop: '0.15em'}} color='disabled'/>
       <FacebookShareButton url={window.location.href}>
         <FacebookIcon size={32} className={props.classes.iconHover} />
       </FacebookShareButton>
@@ -179,8 +207,7 @@ function LifeGuide(props) {
 
 function Copyright() {
   return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      <br />
+    <Typography paragraph color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="http://1bead.org/" target="_blank">
         1 BEAD
@@ -190,16 +217,65 @@ function Copyright() {
 }
 
 function FoodReviews(props) {
-  let match = useRouteMatch();
+  const match = useRouteMatch();
+  const medium = useMediaQuery(props.theme.breakpoints.up('md'))
+  const large = useMediaQuery(props.theme.breakpoints.up('lg'))
+  const cols = large ? 3 : (medium ? 2 : 1)
+
+  const tileData = [
+    {
+      img: 'https://glebekitchen.com/wp-content/uploads/2017/04/tonkotsuramenfront.jpg',
+      title: 'Ramen',
+      author: 'Max',
+    },
+    {
+      img: 'https://assets.epicurious.com/photos/5c93f15d7903444d883ded50/6:4/w_620%2Ch_413/Crisp-Roast-Duck-19032019.jpg',
+      title: 'Roasted Duck',
+      author: 'Ting',
+    },
+    {
+      img: 'https://www.seriouseats.com/2019/08/20190809-burst-tomato-xo-pasta-vicky-wasik21-.jpg',
+      title: 'Pasta',
+      author: 'Kate',
+    },
+    {
+      img: 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Soft_tofu_2.jpg',
+      title: 'Tofu',
+      author: 'Jon',
+    },
+  ];
+
   return (
-    <div>Yummy yum yum
-    <ShareButtons classes={props.classes} />
+    <div className={props.classes.foodRoot}>
+      {chunk(tileData, cols).map(subset => {
+        return <GridList className={props.classes.foodGridList} cols={cols}>
+          {subset.map(tile => (
+            <GridListTile key={tile.img} className={props.classes.foodGridListTile} height={500}>
+              <img src={tile.img} alt={tile.title} />
+              <GridListTileBar
+                title={tile.title}
+                classes={{
+                  root: props.classes.foodTitleBar,
+                  title: props.classes.foodTitle,
+                }}
+                actionIcon={
+                  <IconButton aria-label={`star ${tile.title}`}>
+                    <StarBorderIcon className={props.classes.foodTitle} />
+                    <StarBorderIcon className={props.classes.foodTitle} />
+                    <StarBorderIcon className={props.classes.foodTitle} />
+                  </IconButton>
+                }
+              />
+            </GridListTile>
+          ))}
+        </GridList>}
+      )}
+      <ShareButtons classes={props.classes} />
     </div>
   )
 }
 
 function SpeedDials(props) {
-  const classes = props.classes
   const [open, setOpen] = React.useState(false);
 
   const handleClose = () => {
@@ -213,7 +289,7 @@ function SpeedDials(props) {
   return (<Box position='fixed' bottom='1em' right='1em'>
     <SpeedDial
       ariaLabel="SpeedDials"
-      className={classes.speedDial}
+      className={props.classes.speedDial}
       icon={<SpeedDialIcon />}
       onClose={handleClose}
       onOpen={handleOpen}
@@ -326,7 +402,7 @@ function ResponsiveDrawer(props) {
         <div className={classes.toolbar} />
         <Switch>
           <Route path='/food-reviews'>
-            <FoodReviews classes={classes} />
+            <FoodReviews classes={classes} theme={theme} />
           </Route>
           <Route path='/life-guide'>
             <LifeGuide classes={classes} />
