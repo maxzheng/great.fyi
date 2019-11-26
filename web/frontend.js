@@ -24,6 +24,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import MenuIcon from '@material-ui/icons/Menu';
+import Modal from '@material-ui/core/Modal';
 import ShareIcon from '@material-ui/icons/Share';
 import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
@@ -137,7 +138,7 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 function ShareButtons(props) {
   const direction = 'direction' in props ? props.direction : 'row'
   return (
-    <Box display="flex" flexDirection={direction} p={1} m={1} justifyContent="center">
+    <Box display="flex" flexDirection={direction} padding='1px' bgcolor='#cccccc' justifyContent="center">
       <FacebookShareButton url={window.location.href}>
         <FacebookIcon size={32} className={props.classes.shareIconHover} />
       </FacebookShareButton>
@@ -281,12 +282,17 @@ function SpeedDials(props) {
   ];
 
   return (
-    <Box position='fixed' bottom='1em' right='1em'>
-      { shareOpen &&
-        <Box position='relative' bottom='85px' right='12px' onClick={() => onShareOpen(false)} >
-          <ShareButtons classes={props.classes} direction='column-reverse' />
-        </Box>
-      }
+    <Box position='fixed' bottom='0em' right='0em'>
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={shareOpen}
+        onClose={ () => { setShareOpen(false) }} >
+          <Box position='absolute' bottom='100px' right='26px' style={{outline: 'none'}} bgcolor="background.paper"
+               onClick={() => { setOpen(false); setShareOpen(false) }} >
+            <ShareButtons classes={props.classes} direction='column-reverse' />
+          </Box>
+      </Modal>
       <SpeedDial
         ariaLabel="Actions"
         className={props.classes.speedDial}
