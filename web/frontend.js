@@ -43,7 +43,7 @@ const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodReviewsTitle = 'Delicious Food Reviews';
 const lifeGuideTitle = 'A Great Life Guide';
 
-const drawerWidth = 240;
+const drawerWidth = 210;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -102,7 +102,7 @@ const useStyles = makeStyles(theme => ({
       left: theme.spacing(2),
     },
   },
-  iconHover: {
+  shareIconHover: {
     '&:hover': {
       opacity: 0.75
     }
@@ -131,27 +131,24 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const actions = [
-  { icon: <ShareIcon />, name: 'Share' },
-];
-
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
 
 
 function ShareButtons(props) {
+  const direction = 'direction' in props ? props.direction : 'row'
   return (
-    <Box display="flex" flexDirection="row" p={1} m={1} justifyContent="center">
+    <Box display="flex" flexDirection={direction} p={1} m={1} justifyContent="center">
       <FacebookShareButton url={window.location.href}>
-        <FacebookIcon size={32} className={props.classes.iconHover} />
+        <FacebookIcon size={32} className={props.classes.shareIconHover} />
       </FacebookShareButton>
       <LinkedinShareButton url={window.location.href}>
-        <LinkedinIcon size={32} className={props.classes.iconHover} />
+        <LinkedinIcon size={32} className={props.classes.shareIconHover} />
       </LinkedinShareButton>
       <TwitterShareButton url={window.location.href}>
-        <TwitterIcon size={32} className={props.classes.iconHover} />
+        <TwitterIcon size={32} className={props.classes.shareIconHover} />
       </TwitterShareButton>
       <EmailShareButton url={window.location.href} openWindow={true}>
-        <EmailIcon size={32} className={props.classes.iconHover} />
+        <EmailIcon size={32} className={props.classes.shareIconHover} />
       </EmailShareButton>
     </Box>
   )
@@ -270,40 +267,44 @@ function FoodReviews(props) {
           ))}
         </GridList>}
       )}
-      <ShareButtons classes={props.classes} />
+      <SpeedDials classes={props.classes} />
     </div>
   )
 }
 
 function SpeedDials(props) {
   const [open, setOpen] = React.useState(false);
+  const [shareOpen, setShareOpen] = React.useState(false);
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const actions = [
+    { icon: <ShareIcon />, name: 'Share' },
+  ];
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  return (<Box position='fixed' bottom='1em' right='1em'>
-    <SpeedDial
-      ariaLabel="SpeedDials"
-      className={props.classes.speedDial}
-      icon={<SpeedDialIcon />}
-      onClose={handleClose}
-      onOpen={handleOpen}
-      open={open}
-    >
-      {actions.map(action => (
-        <SpeedDialAction
-          key={action.name}
-          icon={action.icon}
-          tooltipTitle={action.name}
-          onClick={handleClose}
-        />
-      ))}
-    </SpeedDial></Box>
+  return (
+    <Box position='fixed' bottom='1em' right='1em'>
+      { shareOpen &&
+        <Box position='relative' bottom='85px' right='12px' onClick={() => onShareOpen(false)} >
+          <ShareButtons classes={props.classes} direction='column-reverse' />
+        </Box>
+      }
+      <SpeedDial
+        ariaLabel="Actions"
+        className={props.classes.speedDial}
+        icon={<SpeedDialIcon />}
+        onClose={() => { setOpen(false) }}
+        onOpen={() => { setOpen(true) }}
+        open={open}
+      >
+        {actions.map(action => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            onClick={() => { setOpen(false); setShareOpen(true) }}
+          />
+        ))}
+      </SpeedDial>
+    </Box>
   );
 }
 
@@ -421,7 +422,7 @@ function ResponsiveDrawer(props) {
 }
 
 function TitleChanger(props) {
-  let { page } = useParams();
+  const { page } = useParams();
   name = page ? '/' + page : '/'
   props.setTitle(props.menu[name].title)
   return null
