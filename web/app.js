@@ -47,22 +47,13 @@ const lifeGuideTitle = 'A Great Life Guide';
 const drawerWidth = 210;
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    display: 'flex',
-  },
-  container: {
+  app: {
     maxWidth: '100em',
     paddingLeft: '1em',
     paddingRight: '1em',
     [theme.breakpoints.up('sm')]: {
       paddingLeft: '2em',
-      paddingRight: '2em',
-    },
-  },
-  drawer: {
-    [theme.breakpoints.up('sm')]: {
-      width: drawerWidth - 30,
-      flexShrink: 0,
+      paddingRight: '0em',
     },
   },
   appBar: {
@@ -82,10 +73,19 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none'
   },
   toolbar: theme.mixins.toolbar,
+  drawer: {
+    display: 'flex',
+  },
+  drawerNav: {
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth - 30,
+      flexShrink: 0,
+    },
+  },
   drawerPaper: {
     width: drawerWidth,
   },
-  content: {
+  drawerContent: {
     flexGrow: 1,
     paddingTop: theme.spacing(1.5),
     [theme.breakpoints.up('sm')]: {
@@ -119,6 +119,7 @@ const useStyles = makeStyles(theme => ({
     // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
     transform: 'translateZ(0)',
     backgroundColor: theme.palette.background.paper,
+    width: '100%'
   },
   foodGridListTile: {
     marginBottom: '0.4em'
@@ -131,6 +132,7 @@ const useStyles = makeStyles(theme => ({
       'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
   },
 }));
+
 
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
 
@@ -160,6 +162,8 @@ function Home(props) {
     <Typography paragraph>
       We have <RLink to='/food-reviews'>delicious food reviews</RLink> and <RLink to='/life-guide'>a great life guide</RLink> so far. More to come later!
     </Typography>
+    {props.user && <span>Welcome, {props.user.displayName}</span>}
+
     <Typography variant="h5" gutterBottom align='center'>
       <pre>
       ===========================<br />
@@ -197,7 +201,7 @@ function LifeGuide(props) {
       Easily remember the steps using the acronym <Bold>1 BEAD</Bold> from the first word/letter of each step. Each step must be done successfully in order so the next step is easier to do. It takes time to master each step, but the results are immediate and increasingly substantial. When things are not going as expected, take a timeout to rest and reflect using the steps. Mastery is achieved when all steps are followed consistently and naturally for everything that you do and are done using <Bold>100%</Bold> of your energies with at least 1% for being mindful always. And voilà, a great life!
     </Typography>
     <Typography paragraph>
-      <span style={{ fontStyle: 'italic' }}>Note: This is v3.7 release of <Link color='inherit' href='https://github.com/maxzheng/great-life-guide' target="_blank">https://github.com/maxzheng/great-life-guide</Link> to allow for easy sharing, liking, or commenting</span>
+      <span style={{ fontStyle: 'italic' }}>Note: This is v3.7 release of <Link color='inherit' href='https://github.com/maxzheng/great-life-guide' target="_blank">great-life-guide</Link> to allow for easy sharing.</span>
     </Typography>
     <ShareButtons classes={props.classes} />
   </div>)
@@ -205,7 +209,7 @@ function LifeGuide(props) {
 
 function Copyright() {
   return (
-    <Typography paragraph color="textSecondary" align="center">
+    <Typography paragraph color="textSecondary" align="center" style={{marginTop: '1em'}}>
       {'Copyright © '}
       <Link color="inherit" href="http://1bead.org/" target="_blank">
         1 BEAD
@@ -237,7 +241,7 @@ function FoodReviews(props) {
       author: 'Kate',
     },
     {
-      img: 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Soft_tofu_2.jpg',
+      img: 'https://simpleveganblog.com/wp-content/uploads/2019/03/Easy-marinated-tofu.jpg',
       title: 'Tofu',
       author: 'Jon',
     },
@@ -361,7 +365,7 @@ function ResponsiveDrawer(props) {
   }
 
   return (
-    <div className={classes.root}>
+    <div className={classes.drawer}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
@@ -379,7 +383,7 @@ function ResponsiveDrawer(props) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <nav className={classes.drawer} aria-label="mailbox folders">
+      <nav className={classes.drawerNav} aria-label="mailbox folders">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
           <Drawer
@@ -405,17 +409,17 @@ function ResponsiveDrawer(props) {
           </Drawer>
         </Hidden>
       </nav>
-      <main className={classes.content}>
+      <main className={classes.drawerContent}>
         <div className={classes.toolbar} />
         <Switch>
           <Route path='/food-reviews'>
-            <FoodReviews classes={classes} theme={theme} />
+            <FoodReviews classes={classes} theme={theme} user={props.user} />
           </Route>
           <Route path='/life-guide'>
             <LifeGuide classes={classes} />
           </Route>
           <Route path='/'>
-            <Home classes={classes} />
+            <Home classes={classes} user={props.user}/>
           </Route>
         </Switch>
         <Route path='/:page?'>
@@ -434,13 +438,40 @@ function TitleChanger(props) {
   return null
 }
 
+function LoginBox(props) {
+  return (
+    <Modal
+        aria-labelledby="Login Box"
+        aria-describedby="Login using Google, Facebook, Email, etc."
+        open={props.loginOpen}
+        onClose={ () => { props.setLoginOpen(false) }}
+        style={{display:'flex', alignItems: 'center', justifyContent: 'center'}} >
+          <Box id='loginBox' width='270px' style={{outline: 'none'}} />
+    </Modal>
+  )
+}
+
 function App() {
   const classes = useStyles();
 
+  let [user, setUser] = React.useState(null)
+  let [loginOpen, setLoginOpen] = React.useState(false)
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      setUser(user)
+    } else {
+      setUser(null)
+    }
+  }, function(error) {
+    console.log(error)
+  })
+
   return (
     <Router>
-      <div className={classes.container}>
-        <ResponsiveDrawer classes={classes}/>
+      <LoginBox loginOpen={loginOpen} setLoginOpen={setLoginOpen} />
+      <div className={classes.app}>
+        <ResponsiveDrawer classes={classes} user={user} setLoginOpen={setLoginOpen}/>
       </div >
     </Router>
   );

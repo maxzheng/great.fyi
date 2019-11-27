@@ -7,9 +7,9 @@ import replace from 'rollup-plugin-replace'
 
 
 export default {
-  input: 'web/frontend.js',
+  input: 'web/app.js',
   output: {
-    file: 'static/frontend.js',
+    file: 'static/webapp.js',
     format: 'iife',
     name: 'main'
   },
