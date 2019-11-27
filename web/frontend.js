@@ -138,7 +138,7 @@ const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</
 function ShareButtons(props) {
   const direction = 'direction' in props ? props.direction : 'row'
   return (
-    <Box display="flex" flexDirection={direction} padding='1px' bgcolor='#cccccc' justifyContent="center">
+    <Box display="flex" flexDirection={direction} padding='1px' bgcolor='inherit' justifyContent="center">
       <FacebookShareButton url={window.location.href}>
         <FacebookIcon size={32} className={props.classes.shareIconHover} />
       </FacebookShareButton>
