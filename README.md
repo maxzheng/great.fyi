@@ -1,3 +1,3 @@
-# greatlife.io
+# great.fyi
 
-Web application for http://greatlife.io
+Web application for http://great.fyi

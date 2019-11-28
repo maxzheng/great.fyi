@@ -14,8 +14,8 @@ sudo su -
 echo [ Show what\'s running ]
 ps -eaf | grep web-app | grep -v grep
 
-echo [ Updating greatlife.io ]
-app update --wait greatlife.io
+echo [ Updating great.fyi ]
+app update --wait great.fyi
 
 echo [ Stop apps ]
 killall web-app

@@ -1,7 +1,7 @@
 {
-  "name": "greatlife.io",
+  "name": "great.fyi",
   "version": "0.0.1",
-  "description": "Web application for http://greatlife.io",
+  "description": "Web application for http://great.fyi",
   "main": "web/app.js",
   "scripts": {
     "build": "rollup -c",
@@ -40,12 +40,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maxzheng/greatlife.io.git"
+    "url": "git+https://github.com/maxzheng/great.fyi.git"
   },
   "author": "Max Zheng",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/maxzheng/greatlife.io/issues"
+    "url": "https://github.com/maxzheng/great.fyi/issues"
   },
-  "homepage": "https://github.com/maxzheng/greatlife.io#readme"
+  "homepage": "https://github.com/maxzheng/great.fyi#readme"
 }

@@ -2,16 +2,16 @@ import setuptools
 
 
 setuptools.setup(
-    name='greatlife.io',
+    name='great.fyi',
     version='0.0.12',
 
     author='Max Zheng',
     author_email='maxzheng.os@gmail.com',
 
-    description='Web application for greatlife.io',
+    description='Web application for great.fyi',
     long_description=open('README.md').read(),
 
-    url='https://github.com/maxzheng/greatlife.io',
+    url='https://github.com/maxzheng/great.fyi',
 
     install_requires=open('requirements.txt').read(),
 
@@ -42,5 +42,5 @@ setuptools.setup(
       'Programming Language :: Python :: 3.6',
     ],
 
-    keywords='web appplication for greatlife.io',
+    keywords='web appplication for great.fyi',
 )
