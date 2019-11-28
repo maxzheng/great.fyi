@@ -433,8 +433,10 @@ function ResponsiveDrawer(props) {
 
 function TitleChanger(props) {
   const { page } = useParams();
-  name = page ? '/' + page : '/'
-  props.setTitle(props.menu[name].title)
+  const name = page ? '/' + page : '/'
+  const title = props.menu[name].title
+  document.title = title
+  props.setTitle(title)
   return null
 }
 
