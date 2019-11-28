@@ -13,7 +13,6 @@
     <script src="/__/firebase/7.5.0/firebase-auth.js"></script>
     <script src="/__/firebase/7.5.0/firebase-firestore.js"></script>
     <script src="/__/firebase/7.5.0/firebase-storage.js"></script>
-    <script src="/__/firebase/init.js"></script>
     <script src="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth.js"></script>
     <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth.css" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
@@ -24,6 +23,20 @@
   <body>
     <div id="root"></div>
     <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyCJW-C06gJzSChtd4myK6YoXItIYUUGD9w",
+        authDomain: "great.fyi",
+        databaseURL: "https://great-fyi.firebaseio.com",
+        projectId: "great-fyi",
+        storageBucket: "great-fyi",
+        messagingSenderId: "18374210596",
+        appId: "1:18374210596:web:2351918f47a69f8dac54b1",
+        measurementId: "G-2DFZZL7V33"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+
       function addFirebaseAuthUI(containerId) {
         container = document.getElementById(containerId)
         if (!container) {
