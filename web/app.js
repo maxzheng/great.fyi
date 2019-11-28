@@ -441,6 +441,12 @@ function TitleChanger(props) {
 }
 
 function LoginBox(props) {
+  React.useEffect(() => {
+    setTimeout(() => {
+      addFirebaseAuthUI("login-box")
+    })
+  })
+
   return (
     <Modal
         aria-labelledby="Login Box"
@@ -448,7 +454,7 @@ function LoginBox(props) {
         open={props.loginOpen}
         onClose={ () => { props.setLoginOpen(false) }}
         style={{display:'flex', alignItems: 'center', justifyContent: 'center'}} >
-          <Box id='loginBox' width='270px' style={{outline: 'none'}} />
+          <Box id='login-box' width='270px' style={{outline: 'none'}} />
     </Modal>
   )
 }
@@ -471,10 +477,10 @@ function App() {
 
   return (
     <Router>
-      <LoginBox loginOpen={loginOpen} setLoginOpen={setLoginOpen} />
       <div className={classes.app}>
         <ResponsiveDrawer classes={classes} user={user} setLoginOpen={setLoginOpen}/>
       </div >
+      <LoginBox loginOpen={loginOpen} setLoginOpen={setLoginOpen} />
     </Router>
   );
 }
