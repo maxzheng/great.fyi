@@ -25,6 +25,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import MenuIcon from '@material-ui/icons/Menu';
 import Modal from '@material-ui/core/Modal';
+import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
 import ShareIcon from '@material-ui/icons/Share';
 import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
@@ -37,8 +38,10 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon,
          EmailShareButton, EmailIcon } from 'react-share';
 import { BrowserRouter as Router, Switch, Route, Link as RLink, useRouteMatch, useParams } from "react-router-dom";
+import FileUploader from "react-firebase-file-uploader";
 
 import chunk from 'lodash.chunk'
+import uuidv4 from 'uuid/v4';
 
 const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodReviewsTitle = 'Delicious Food Reviews';
@@ -272,8 +275,27 @@ function FoodReviews(props) {
           ))}
         </GridList>}
       )}
-      <SpeedDials classes={props.classes} />
+      <SpeedDials classes={props.classes} user={props.user} setLoginOpen={props.setLoginOpen} />
     </div>
+  )
+}
+
+function UploadImageButton(props) {
+  return (
+    <label style={{cursor: 'pointer', marginTop: '0.5em'}} onClick={e => {if (!props.user) { props.setLoginOpen(true);
+      e.preventDefault() }}}>
+      <PhotoCameraIcon />
+      { props.user &&
+        <FileUploader
+          hidden
+          accept="image/*"
+          name="dish"
+          randomizeFilename
+          storageRef={firebase.storage().ref('food-reviews/images/' + props.user.uid)}
+          onUploadSuccess={filename => alert('Upload completed: ' + filename)}
+        />
+      }
+    </label>
   )
 }
 
@@ -282,14 +304,15 @@ function SpeedDials(props) {
   const [shareOpen, setShareOpen] = React.useState(false);
 
   const actions = [
-    { icon: <ShareIcon />, name: 'Share' },
+    { icon: <ShareIcon />, name: 'Share', onClick: () => { setOpen(false); setShareOpen(true) } },
+    { icon: <UploadImageButton user={props.user} setLoginOpen={props.setLoginOpen} />, name: 'Upload', onClick: () => { setOpen(false); } },
   ];
 
   return (
     <Box position='fixed' bottom='0em' right='0em'>
       <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
+        aria-labelledby="Share page"
+        aria-describedby="Share page on Facebook, LinkedIn, etc"
         open={shareOpen}
         onClose={ () => { setShareOpen(false) }} >
           <Box position='absolute' bottom='100px' right='26px' style={{outline: 'none'}} bgcolor="background.paper"
@@ -310,7 +333,7 @@ function SpeedDials(props) {
             key={action.name}
             icon={action.icon}
             tooltipTitle={action.name}
-            onClick={() => { setOpen(false); setShareOpen(true) }}
+            onClick={action.onClick}
           />
         ))}
       </SpeedDial>
@@ -413,7 +436,7 @@ function ResponsiveDrawer(props) {
         <div className={classes.toolbar} />
         <Switch>
           <Route path='/food-reviews'>
-            <FoodReviews classes={classes} theme={theme} user={props.user} />
+            <FoodReviews classes={classes} theme={theme} user={props.user} setLoginOpen={props.setLoginOpen}/>
           </Route>
           <Route path='/life-guide'>
             <LifeGuide classes={classes} />

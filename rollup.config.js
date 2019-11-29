@@ -15,12 +15,22 @@ export default {
   },
   plugins: [
     replace({
-      "process.env.NODE_ENV": JSON.stringify('development')
+      'process.env.NODE_ENV': JSON.stringify('development')
+    }),
+    replace({
+      include: ['node_modules/uuid/**'],
+      delimiters: ['', ''],
+      values: {
+        'crypto.randomBytes': 'require(\'randombytes\')',
+      }
     }),
     babel({
       exclude: "node_modules/**"
     }),
-    resolve({preferBuiltins: true}),
+    resolve({
+      browser: true,
+      preferBuiltins: true
+    }),
     commonjs({
       include: 'node_modules/**',
       // left-hand side can be an absolute path, a path
