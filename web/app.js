@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box'
+import Button from '@material-ui/core/Button'
 import Container from '@material-ui/core/Container';
 import CreateIcon from '@material-ui/icons/Create';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -32,13 +33,14 @@ import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
+import TextField from '@material-ui/core/TextField'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon,
          EmailShareButton, EmailIcon } from 'react-share';
-import { Router, Switch, Route, Link as RLink, useRouteMatch, useParams, Redirect }
+import { BrowserRouter as Router, Switch, Route, Link as RLink, useRouteMatch, useParams, Redirect, useHistory }
        from "react-router-dom";
 import { createBrowserHistory } from 'history';
 import FileUploader from "react-firebase-file-uploader";
@@ -50,6 +52,7 @@ const homeTitle = 'Everything You Need to Know to Be Great!';
 const foodReviewsTitle = 'Delicious Food Reviews';
 const lifeGuideTitle = 'A Great Life Guide';
 
+const foodImagesUrl = 'https://storage.googleapis.com/great-fyi/food-reviews/images/'
 const drawerWidth = 210;
 
 const useStyles = makeStyles(theme => ({
@@ -137,6 +140,10 @@ const useStyles = makeStyles(theme => ({
     background:
       'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
   },
+  postButtons: {
+    margin: '0em 1em',
+    width: '90px'
+  }
 }));
 
 
@@ -299,27 +306,60 @@ function FoodReviews(props) {
         </GridList>}
       )}
       <SpeedDials classes={props.classes} user={props.user} />
-      <SecretRoute path='/food-reviews/create' publicPath='/food-reviews' user={props.user}>
-        <UploadImageButton />
+      <SecretRoute path='/food-reviews/post' publicPath='/food-reviews' user={props.user}>
+        <PostFoodReview user={props.user} classes={props.classes} history={props.history} />
       </SecretRoute>
     </div>
   )
 }
 
-function UploadImageButton(props) {
+function PostFoodReview(props) {
+  let [imageUrl, setImageUrl] = React.useState(null)
+
   return (
-    <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
-      <PhotoCameraIcon />
-      { props.user &&
-        <FileUploader
-          accept="image/*"
-          name="dish"
-          randomizeFilename
-          storageRef={firebase.storage().ref('food-reviews/images/' + props.user.uid)}
-          onUploadSuccess={filename => alert('Upload completed: ' + filename)}
-        />
-      }
-    </label>
+    <Modal
+      aria-labelledby="Post Review"
+      aria-describedby="Post review of delicious food"
+      open={true}
+      onClose={() => props.history.push('/food-reviews') }
+      style={{display:'flex', alignItems: 'center', justifyContent: 'center'}} >
+        <Box id='post-box' width='450px' style={{outline: 'none'}} bgcolor='white' align='center' padding='1em'>
+          { props.user &&
+            <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
+              <Box id='photo-box' display='flex' width='100%' height='200px' style={{outline: 'none'}} bgcolor='gray'
+                   border='1px solid gray' alignItems='center' justifyContent='center'>
+                { imageUrl && <img src={imageUrl} height='100%' alt='Uploaded image' /> }
+                { !imageUrl && <PhotoCameraIcon /> }
+                <FileUploader
+                  accept="image/*"
+                  name="dish"
+                  hidden
+                  maxHeight={512}
+                  maxWidth={768}
+                  randomizeFilename
+                  storageRef={firebase.storage().ref('food-reviews/images/' + props.user.uid)}
+                  onUploadSuccess={filename => setImageUrl(foodImagesUrl + props.user.uid + '/' + filename) }
+                />
+              </Box>
+            </label>
+          }
+          <form>
+            <TextField id="name" label="Name" fullWidth />
+            <TextField id="location" label="Location" fullWidth />
+            <TextField id="delicious" label="How delicious? We want details..." multiline fullWidth />
+            <TextField id="tags" label="Optional tags to help others find this" fullWidth />
+            <br />
+            <br />
+            <Button variant="contained" color="primary" className={props.classes.postButtons}>
+            Post
+            </Button>
+            <Button variant="contained" className={props.classes.postButtons}
+                    onClick={() => props.history.push('/food-reviews') }>
+            Cancel
+            </Button>
+          </form>
+        </Box>
+    </Modal>
   )
 }
 
@@ -329,7 +369,8 @@ function SpeedDials(props) {
 
   const actions = [
     { icon: <ShareIcon />, name: 'Share', onClick: () => { setOpen(false); setShareOpen(true) } },
-    { icon: <RLink to='/food-reviews/create'><CreateIcon /></RLink>, name: 'Create' },
+    { icon: <RLink to='/food-reviews/post' style={{ color: 'inherit', textDecoration: 'inherit'}}>
+            <CreateIcon style={{marginTop: '0.2em'}}/></RLink>, name: 'Post' },
   ];
 
   return (
@@ -460,7 +501,7 @@ function ResponsiveDrawer(props) {
         <div className={classes.toolbar} />
         <Switch>
           <Route path='/food-reviews'>
-            <FoodReviews classes={classes} theme={theme} user={props.user} />
+            <FoodReviews classes={classes} theme={theme} user={props.user} history={props.history}/>
           </Route>
           <Route path='/life-guide'>
             <LifeGuide classes={classes} />
@@ -510,17 +551,24 @@ function LoginBox(props) {
         aria-labelledby="Login Box"
         aria-describedby="Login using Google, Facebook, Email, etc."
         open={true}
-        onClose={() => window.location.href = failedPath }
+        onClose={() => props.history.push(failedPath) }
         style={{display:'flex', alignItems: 'center', justifyContent: 'center'}} >
-          <Box id='login-box' width='270px' style={{outline: 'none'}} />
+          <Box width='270px' style={{outline: 'none'}} justifyContent='center'>
+            <Typography variant='h6' color='textPrimary' align='center'>
+              Please login to continue
+            </Typography>
+            <Typography variant='body2' color='textSecondary' align='center'>
+              (or click any where to go back)
+            </Typography>
+            <Box id='login-box'/>
+          </Box>
     </Modal>
   )
 }
 
-const history = createBrowserHistory();
-
 function App() {
-  const classes = useStyles();
+  const classes = useStyles()
+  let history = useHistory()
 
   let [user, setUser] = React.useState(null)
   let [login, setLogin] = React.useState(window.location.hash && window.location.hash.startsWith('#login'))
@@ -544,17 +592,16 @@ function App() {
       console.log(`The current URL hash: ${location.hash}`);
   });
 
+
   return (
-    <Router history={history}>
-      <div className={classes.app}>
-        <LoginBox user={user} login={login} setLogin={setLogin} />
-        { !login && <ResponsiveDrawer classes={classes} user={user}/> }
-      </div >
-    </Router>
+    <div className={classes.app}>
+      <LoginBox user={user} login={login} setLogin={setLogin} history={history} />
+      { !login && <ResponsiveDrawer classes={classes} user={user} setLogin={setLogin} history={history} /> }
+    </div >
   );
 }
 
 ReactDOM.render(
-  <App />,
+  <Router><App /></Router>,
   document.querySelector('#root'),
 );
