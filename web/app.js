@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box'
 import Container from '@material-ui/core/Container';
+import CreateIcon from '@material-ui/icons/Create';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
@@ -37,7 +38,9 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon,
          EmailShareButton, EmailIcon } from 'react-share';
-import { BrowserRouter as Router, Switch, Route, Link as RLink, useRouteMatch, useParams } from "react-router-dom";
+import { Router, Switch, Route, Link as RLink, useRouteMatch, useParams, Redirect }
+       from "react-router-dom";
+import { createBrowserHistory } from 'history';
 import FileUploader from "react-firebase-file-uploader";
 
 import chunk from 'lodash.chunk'
@@ -138,6 +141,26 @@ const useStyles = makeStyles(theme => ({
 
 
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
+
+// A wrapper for <Route> that redirects to the login
+// screen if user has not yet authenticated.
+function SecretRoute({ children, publicPath, ...rest }) {
+  if (!rest.path) alert('SecretRoute requires "path" property')
+  if (!publicPath) alert('SecretRoute requires "publicPath" property')
+
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        rest.user ? (
+          children
+        ) : (
+          <Redirect to={'#login' + rest.path + '|' + publicPath} />
+        )
+      }
+    />
+  );
+}
 
 
 function ShareButtons(props) {
@@ -275,19 +298,20 @@ function FoodReviews(props) {
           ))}
         </GridList>}
       )}
-      <SpeedDials classes={props.classes} user={props.user} setLoginOpen={props.setLoginOpen} />
+      <SpeedDials classes={props.classes} user={props.user} />
+      <SecretRoute path='/food-reviews/create' publicPath='/food-reviews' user={props.user}>
+        <UploadImageButton />
+      </SecretRoute>
     </div>
   )
 }
 
 function UploadImageButton(props) {
   return (
-    <label style={{cursor: 'pointer', marginTop: '0.5em'}} onClick={e => {if (!props.user) { props.setLoginOpen(true);
-      e.preventDefault() }}}>
+    <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
       <PhotoCameraIcon />
       { props.user &&
         <FileUploader
-          hidden
           accept="image/*"
           name="dish"
           randomizeFilename
@@ -305,7 +329,7 @@ function SpeedDials(props) {
 
   const actions = [
     { icon: <ShareIcon />, name: 'Share', onClick: () => { setOpen(false); setShareOpen(true) } },
-    { icon: <UploadImageButton user={props.user} setLoginOpen={props.setLoginOpen} />, name: 'Upload', onClick: () => { setOpen(false); } },
+    { icon: <RLink to='/food-reviews/create'><CreateIcon /></RLink>, name: 'Create' },
   ];
 
   return (
@@ -436,7 +460,7 @@ function ResponsiveDrawer(props) {
         <div className={classes.toolbar} />
         <Switch>
           <Route path='/food-reviews'>
-            <FoodReviews classes={classes} theme={theme} user={props.user} setLoginOpen={props.setLoginOpen}/>
+            <FoodReviews classes={classes} theme={theme} user={props.user} />
           </Route>
           <Route path='/life-guide'>
             <LifeGuide classes={classes} />
@@ -464,6 +488,17 @@ function TitleChanger(props) {
 }
 
 function LoginBox(props) {
+  // Not at login page
+  if (!props.login)
+    return null
+
+  // Logged in already, so just need to redirect back to secret route.
+  const [successPath, failedPath] = window.location.hash.substring(7).split('|')
+  if (props.user) {
+    return <Redirect to={successPath} />
+  }
+
+  // Not logged in
   React.useEffect(() => {
     setTimeout(() => {
       addFirebaseAuthUI("login-box")
@@ -474,19 +509,21 @@ function LoginBox(props) {
     <Modal
         aria-labelledby="Login Box"
         aria-describedby="Login using Google, Facebook, Email, etc."
-        open={props.loginOpen}
-        onClose={ () => { props.setLoginOpen(false) }}
+        open={true}
+        onClose={() => window.location.href = failedPath }
         style={{display:'flex', alignItems: 'center', justifyContent: 'center'}} >
           <Box id='login-box' width='270px' style={{outline: 'none'}} />
     </Modal>
   )
 }
 
+const history = createBrowserHistory();
+
 function App() {
   const classes = useStyles();
 
   let [user, setUser] = React.useState(null)
-  let [loginOpen, setLoginOpen] = React.useState(false)
+  let [login, setLogin] = React.useState(window.location.hash && window.location.hash.startsWith('#login'))
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -498,12 +535,21 @@ function App() {
     console.log(error)
   })
 
+  history.listen((location, action) => {
+      if (location.hash && location.hash.startsWith('#login')) {
+        setLogin(true)
+      } else {
+        setLogin(false)
+      }
+      console.log(`The current URL hash: ${location.hash}`);
+  });
+
   return (
-    <Router>
+    <Router history={history}>
       <div className={classes.app}>
-        <ResponsiveDrawer classes={classes} user={user} setLoginOpen={setLoginOpen}/>
+        <LoginBox user={user} login={login} setLogin={setLogin} />
+        { !login && <ResponsiveDrawer classes={classes} user={user}/> }
       </div >
-      <LoginBox loginOpen={loginOpen} setLoginOpen={setLoginOpen} />
     </Router>
   );
 }
