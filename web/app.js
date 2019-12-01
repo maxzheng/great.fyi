@@ -435,8 +435,10 @@ function PostFoodReview(props) {
                   />
                 </Box>
                 <Field component={TextField} name="name" label='Name' fullWidth required />
-                <Field component={TextField} name="location" label='Location' fullWidth required />
-                <Field component={TextField} name="details" label="Delicious details" multiline fullWidth />
+                <Field component={TextField} name="brand" label='Restaurant, store, or brand' fullWidth required />
+                <Field component={TextField} name="location" label='City and state, or website' fullWidth required />
+                <Field component={TextField} name="details" label="How is it delicious?" multiline fullWidth
+                       rowsMax={3} />
                 <Field component={TextField} name="tags" label="Tags for filtering (comma separated)" fullWidth />
                 <br />
                 <br />
