@@ -6,9 +6,11 @@ import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import CreateIcon from '@material-ui/icons/Create';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import Dialog from '@material-ui/core/Dialog';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import FastfoodIcon from '@material-ui/icons/Fastfood';
@@ -28,12 +30,12 @@ import MenuBookIcon from '@material-ui/icons/MenuBook';
 import MenuIcon from '@material-ui/icons/Menu';
 import Modal from '@material-ui/core/Modal';
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
+import Rating from '@material-ui/lab/Rating'
 import ShareIcon from '@material-ui/icons/Share';
 import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import TextField from '@material-ui/core/TextField'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -44,6 +46,8 @@ import { BrowserRouter as Router, Switch, Route, Link as RLink, useRouteMatch, u
        from "react-router-dom";
 import { createBrowserHistory } from 'history';
 import FileUploader from "react-firebase-file-uploader";
+import { Formik, Field, Form } from 'formik';
+import { TextField } from 'formik-material-ui';
 
 import chunk from 'lodash.chunk'
 import uuidv4 from 'uuid/v4';
@@ -146,8 +150,52 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const ratingLabels = {
+    1: 'So so',
+    2: 'Good',
+    3: 'Great',
+};
+
 
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
+
+function CircularProgressBlue(props) {
+  const classes = makeStyles({
+    root: {
+      position: 'relative',
+    },
+    top: {
+      color: '#eef3fd',
+    },
+    bottom: {
+      color: '#6798e5',
+      animationDuration: '550ms',
+      position: 'absolute',
+      left: 0,
+    },
+  })();
+
+  return (
+    <div className={classes.root}>
+      <CircularProgress
+        variant="determinate"
+        value={100}
+        className={classes.top}
+        size={24}
+        thickness={4}
+        {...props}
+      />
+      <CircularProgress
+        variant="indeterminate"
+        disableShrink
+        className={classes.bottom}
+        size={24}
+        thickness={4}
+        {...props}
+      />
+    </div>
+  );
+}
 
 // A wrapper for <Route> that redirects to the login
 // screen if user has not yet authenticated.
@@ -315,51 +363,96 @@ function FoodReviews(props) {
 
 function PostFoodReview(props) {
   let [imageUrl, setImageUrl] = React.useState(null)
+  let [rating, setRating] = React.useState(2)
+  let [uploadStarted, setUploadStarted] = React.useState(false)
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    alert(JSON.stringify(e))
+  }
 
   return (
-    <Modal
+    <Dialog
       aria-labelledby="Post Review"
       aria-describedby="Post review of delicious food"
       open={true}
+      scroll='body'
       onClose={() => props.history.push('/food-reviews') }
-      style={{display:'flex', alignItems: 'center', justifyContent: 'center'}} >
-        <Box id='post-box' width='450px' style={{outline: 'none'}} bgcolor='white' align='center' padding='1em'>
-          { props.user &&
-            <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
-              <Box id='photo-box' display='flex' width='100%' height='200px' style={{outline: 'none'}} bgcolor='gray'
-                   border='1px solid gray' alignItems='center' justifyContent='center'>
-                { imageUrl && <img src={imageUrl} height='100%' alt='Uploaded image' /> }
-                { !imageUrl && <PhotoCameraIcon /> }
-                <FileUploader
-                  accept="image/*"
-                  name="dish"
-                  hidden
-                  maxHeight={512}
-                  maxWidth={768}
-                  randomizeFilename
-                  storageRef={firebase.storage().ref('food-reviews/images/' + props.user.uid)}
-                  onUploadSuccess={filename => setImageUrl(foodImagesUrl + props.user.uid + '/' + filename) }
-                />
-              </Box>
-            </label>
-          }
-          <form>
-            <TextField id="name" label="Name" fullWidth />
-            <TextField id="location" label="Location" fullWidth />
-            <TextField id="delicious" label="How delicious? We want details..." multiline fullWidth />
-            <TextField id="tags" label="Optional tags to help others find this" fullWidth />
-            <br />
-            <br />
-            <Button variant="contained" color="primary" className={props.classes.postButtons}>
-            Post
-            </Button>
-            <Button variant="contained" className={props.classes.postButtons}
-                    onClick={() => props.history.push('/food-reviews') }>
-            Cancel
-            </Button>
-          </form>
+      PaperProps={{
+            style: {
+              margin: "1em",
+              maxWidth: "100%"
+            },
+      }}
+      >
+        <Box id='post-box' width='349px' style={{outline: 'none'}} bgcolor='white' align='center' padding='1em'>
+          <Formik
+            initialValues={{ name: '', location: '', details: '', tags: '' }}
+            onSubmit={(values, { setSubmitting }) => {
+              setTimeout(() => {
+                  values.imageUrl = imageUrl
+                  values.rating = rating
+                  alert(JSON.stringify(values, null, 2));
+                  setSubmitting(false);
+                }, 400);
+            }}>
+            {({ isSubmitting }) => (
+              <Form>
+                { props.user &&
+                  <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
+                    <Box id='photo-box' display='flex' width='100%' height='215px' style={{outline: 'none'}} bgcolor='gray'
+                         border='1px solid gray' alignItems='center' justifyContent='center'>
+                      { imageUrl && <img src={imageUrl} height='100%' alt='Uploaded image' /> }
+                      { !imageUrl && (uploadStarted ? <CircularProgressBlue /> : <PhotoCameraIcon />) }
+                      <FileUploader
+                        accept="image/*"
+                        name="image"
+                        hidden
+                        maxHeight={512}
+                        maxWidth={768}
+                        randomizeFilename
+                        required
+                        storageRef={firebase.storage().ref('food-reviews/images/' + props.user.uid)}
+                        onUploadStart={() => { setUploadStarted(true); setImageUrl(null) } }
+                        onUploadSuccess={filename => {
+                          setImageUrl(foodImagesUrl + props.user.uid + '/' + filename)
+                          setUploadStarted(false)
+                        }}
+                      />
+                    </Box>
+                  </label>
+                }
+                <Box display='flex' marginTop='1em' justifyContent='center'>
+                  <Rating
+                    name="rating"
+                    value={rating}
+                    max={3}
+                    size="large"
+                    emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                    onChangeActive={(event, newRating) => {
+                      if (newRating >= 1) setRating(newRating);
+                    }}
+                  />
+                </Box>
+                <Field component={TextField} name="name" label='Name' fullWidth required />
+                <Field component={TextField} name="location" label='Location' fullWidth required />
+                <Field component={TextField} name="details" label="Delicious details" multiline fullWidth />
+                <Field component={TextField} name="tags" label="Tags for filtering (comma separated)" fullWidth />
+                <br />
+                <br />
+                <Button variant="contained" className={props.classes.postButtons}
+                        onClick={() => props.history.push('/food-reviews') }>
+                Cancel
+                </Button>
+                <Button type='submit' variant="contained" color="primary" className={props.classes.postButtons}
+                        disabled={isSubmitting} >
+                Post
+                </Button>
+              </Form>
+            )}
+          </Formik>
         </Box>
-    </Modal>
+    </Dialog>
   )
 }
 
@@ -589,7 +682,6 @@ function App() {
       } else {
         setLogin(false)
       }
-      console.log(`The current URL hash: ${location.hash}`);
   });
 
 

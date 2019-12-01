@@ -45,6 +45,14 @@ export default {
           'createElement',
           'isValidElement',
           'PureComponent',
+          'useContext',
+          'useRef',
+          'useEffect',
+          'useReducer',
+          'useCallback',
+          'useMemo',
+          'useLayoutEffect',
+          'forwardRef',
         ],
         'node_modules/react-dom/index.js': ['render', 'hydrate'],
         'node_modules/react-is/index.js': [
@@ -54,6 +62,10 @@ export default {
         ],
         'node_modules/prop-types/index.js': [
           'elementType',
+        ],
+        'node_modules/formik/node_modules/scheduler/index.js': [
+          'unstable_runWithPriority',
+          'LowPriority',
         ]
       }
     }),
