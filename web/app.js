@@ -155,7 +155,7 @@ const ratingLabels = {
     2: 'Good',
     3: 'Great',
 };
-
+const db = firebase.firestore();
 
 const Bold = ({ children }) => <span style={{ fontWeight: 'bold' }}>{children}</span>
 
@@ -305,48 +305,42 @@ function FoodReviews(props) {
   const large = useMediaQuery(props.theme.breakpoints.up('lg'))
   const cols = large ? 3 : (medium ? 2 : 1)
 
-  const tileData = [
-    {
-      img: 'https://glebekitchen.com/wp-content/uploads/2017/04/tonkotsuramenfront.jpg',
-      title: 'Ramen',
-      author: 'Max',
-    },
-    {
-      img: 'https://assets.epicurious.com/photos/5c93f15d7903444d883ded50/6:4/w_620%2Ch_413/Crisp-Roast-Duck-19032019.jpg',
-      title: 'Roasted Duck',
-      author: 'Ting',
-    },
-    {
-      img: 'https://www.seriouseats.com/2019/08/20190809-burst-tomato-xo-pasta-vicky-wasik21-.jpg',
-      title: 'Pasta',
-      author: 'Kate',
-    },
-    {
-      img: 'https://simpleveganblog.com/wp-content/uploads/2019/03/Easy-marinated-tofu.jpg',
-      title: 'Tofu',
-      author: 'Jon',
-    },
-  ];
+  let [tileData, setTileData] = React.useState([])
+  let [reloadData, setReloadData] = React.useState(true)
+
+  if (reloadData) {
+    window.scrollTo(0, 0)
+    setReloadData(false)
+    db.collection('foodReviews').orderBy('updatedAt', 'desc').limit(100).get().then(res => {
+      let reviews = []
+      res.forEach(doc => {
+        reviews.push(doc.data())
+      })
+      setTileData(reviews)
+    })
+  }
 
   return (
     <div className={props.classes.foodRoot}>
       {chunk(tileData, cols).map(subset => {
         return <GridList className={props.classes.foodGridList} cols={cols}>
           {subset.map(tile => (
-            <GridListTile key={tile.img} className={props.classes.foodGridListTile} height={500}>
-              <img src={tile.img} alt={tile.title} />
+            <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} height={512}>
+              <img src={tile.imageUrl} alt={tile.name} />
               <GridListTileBar
-                title={tile.title}
+                title={tile.name}
                 classes={{
                   root: props.classes.foodTitleBar,
                   title: props.classes.foodTitle,
                 }}
                 actionIcon={
-                  <IconButton aria-label={`star ${tile.title}`}>
-                    <StarBorderIcon className={props.classes.foodTitle} />
-                    <StarBorderIcon className={props.classes.foodTitle} />
-                    <StarBorderIcon className={props.classes.foodTitle} />
-                  </IconButton>
+                  <Rating
+                    name="rating"
+                    value={tile.rating}
+                    max={3}
+                    size="large"
+                    emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                  />
                 }
               />
             </GridListTile>
@@ -355,7 +349,7 @@ function FoodReviews(props) {
       )}
       <SpeedDials classes={props.classes} user={props.user} />
       <SecretRoute path='/food-reviews/post' publicPath='/food-reviews' user={props.user}>
-        <PostFoodReview user={props.user} classes={props.classes} history={props.history} />
+        <PostFoodReview user={props.user} classes={props.classes} history={props.history} setReloadData={setReloadData}/>
       </SecretRoute>
     </div>
   )
@@ -366,9 +360,24 @@ function PostFoodReview(props) {
   let [rating, setRating] = React.useState(2)
   let [uploadStarted, setUploadStarted] = React.useState(false)
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    alert(JSON.stringify(e))
+  const handleSubmit = (values, { setSubmitting }) => {
+    values.imageUrl = imageUrl
+    values.rating = rating
+    values.updatedAt = new Date()
+    values.userId = props.user.uid
+    values.userName = props.user.displayName.split(' ')[0]
+    values.tags = values.tags && values.tags.split(/, */) || []
+
+    db.collection("foodReviews")
+      .add(values)
+      .then(docRef => {
+        props.setReloadData(true)
+        props.history.push('/food-reviews')
+      })
+      .catch(function(error) {
+        console.error("Error adding document: ", error);
+        setSubmitting(false);
+      });
   }
 
   return (
@@ -388,14 +397,7 @@ function PostFoodReview(props) {
         <Box id='post-box' width='349px' style={{outline: 'none'}} bgcolor='white' align='center' padding='1em'>
           <Formik
             initialValues={{ name: '', location: '', details: '', tags: '' }}
-            onSubmit={(values, { setSubmitting }) => {
-              setTimeout(() => {
-                  values.imageUrl = imageUrl
-                  values.rating = rating
-                  alert(JSON.stringify(values, null, 2));
-                  setSubmitting(false);
-                }, 400);
-            }}>
+            onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
               <Form>
                 { props.user &&
