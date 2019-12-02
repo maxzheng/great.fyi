@@ -135,7 +135,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%'
   },
   foodGridListTile: {
-    marginBottom: '0.4em'
+    marginBottom: '0.4em',
   },
   foodTitle: {
     color: 'white',
@@ -314,7 +314,7 @@ function FoodReviews(props) {
     db.collection('foodReviews').orderBy('updatedAt', 'desc').limit(100).get().then(res => {
       let reviews = []
       res.forEach(doc => {
-        reviews.push(doc.data())
+        reviews.push({...doc.data(), id: doc.id})
       })
       setTileData(reviews)
     })
@@ -325,7 +325,8 @@ function FoodReviews(props) {
       {chunk(tileData, cols).map(subset => {
         return <GridList className={props.classes.foodGridList} cols={cols}>
           {subset.map(tile => (
-            <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} height={512}>
+            <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} style={{height: '250px'}}
+                          onClick={() => props.history.push('/food-reviews/' + tile.id)} >
               <img src={tile.imageUrl} alt={tile.name} />
               <GridListTileBar
                 title={tile.name}
@@ -339,6 +340,7 @@ function FoodReviews(props) {
                     value={tile.rating}
                     max={3}
                     size="large"
+                    style={{marginRight: '0.5em'}}
                     emptyIcon={<StarBorderIcon fontSize="inherit" />}
                   />
                 }
@@ -348,7 +350,7 @@ function FoodReviews(props) {
         </GridList>}
       )}
       <SpeedDials classes={props.classes} user={props.user} />
-      <SecretRoute path='/food-reviews/post' publicPath='/food-reviews' user={props.user}>
+      <SecretRoute path='/food-reviews/:id' publicPath='/food-reviews' user={props.user}>
         <PostFoodReview user={props.user} classes={props.classes} history={props.history} setReloadData={setReloadData}/>
       </SecretRoute>
     </div>
@@ -356,9 +358,24 @@ function FoodReviews(props) {
 }
 
 function PostFoodReview(props) {
+  let { id } = useParams()
   let [imageUrl, setImageUrl] = React.useState(null)
   let [rating, setRating] = React.useState(2)
   let [uploadStarted, setUploadStarted] = React.useState(false)
+  let [initialValues, setInitialValues] = React.useState(null)
+
+  if (id && id != 'post' && !initialValues) {
+    setInitialValues({name: '', brand: '', location: '', details: '', tags: ''})
+    db.collection('foodReviews').doc(id).get().then(doc => {
+      if (doc.exists) {
+        let data = doc.data()
+        data.tags = data.tags ? data.tags.join(', ') : ''
+        setInitialValues(data)
+        setImageUrl(data.imageUrl)
+        setRating(data.rating)
+      }
+    })
+  }
 
   const handleSubmit = (values, { setSubmitting }) => {
     values.imageUrl = imageUrl
@@ -368,16 +385,33 @@ function PostFoodReview(props) {
     values.userName = props.user.displayName.split(' ')[0]
     values.tags = values.tags && values.tags.split(/, */) || []
 
-    db.collection("foodReviews")
-      .add(values)
-      .then(docRef => {
-        props.setReloadData(true)
-        props.history.push('/food-reviews')
-      })
-      .catch(function(error) {
-        console.error("Error adding document: ", error);
-        setSubmitting(false);
-      });
+    if (initialValues.userId != values.userId)
+      id = 'post'
+
+    if (id == 'post') {
+      db.collection("foodReviews")
+        .add(values)
+        .then(docRef => {
+          props.setReloadData(true)
+          props.history.push('/food-reviews')
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+          setSubmitting(false);
+        });
+    } else {
+      db.collection("foodReviews")
+        .doc(id)
+        .set(values)
+        .then(docRef => {
+          props.setReloadData(true)
+          props.history.push('/food-reviews')
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+          setSubmitting(false);
+        });
+    }
   }
 
   return (
@@ -396,7 +430,8 @@ function PostFoodReview(props) {
       >
         <Box id='post-box' width='349px' style={{outline: 'none'}} bgcolor='white' align='center' padding='1em'>
           <Formik
-            initialValues={{ name: '', location: '', details: '', tags: '' }}
+            initialValues={initialValues}
+            enableReinitialize
             onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
               <Form>
@@ -404,6 +439,7 @@ function PostFoodReview(props) {
                   <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
                     <Box id='photo-box' display='flex' width='100%' height='215px' style={{outline: 'none'}} bgcolor='gray'
                          border='1px solid gray' alignItems='center' justifyContent='center'>
+                      // CSS to rotate portrait: transform = rotate(90deg) translate(-50%) scale(1.5)
                       { imageUrl && <img src={imageUrl} height='100%' alt='Uploaded image' /> }
                       { !imageUrl && (uploadStarted ? <CircularProgressBlue /> : <PhotoCameraIcon />) }
                       <FileUploader
@@ -413,7 +449,6 @@ function PostFoodReview(props) {
                         maxHeight={512}
                         maxWidth={768}
                         randomizeFilename
-                        required
                         storageRef={firebase.storage().ref('food-reviews/images/' + props.user.uid)}
                         onUploadStart={() => { setUploadStarted(true); setImageUrl(null) } }
                         onUploadSuccess={filename => {

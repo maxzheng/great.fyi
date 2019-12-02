@@ -1,7 +1,10 @@
 service firebase.storage {
   match /b/{bucket}/o {
     match /food-reviews/images/{userId}/{allPaths=**} {
-      allow write: if request.auth.uid == userId;
+      allow write: if request.auth
+                   && request.auth.uid == userId
+                   && request.resource.size < 1024 * 1024
+                   && request.resource.contentType.matches('image/.*')
     }
   }
 }
