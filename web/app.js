@@ -325,7 +325,7 @@ function FoodReviews(props) {
       {chunk(tileData, cols).map(subset => {
         return <GridList className={props.classes.foodGridList} cols={cols}>
           {subset.map(tile => (
-            <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} style={{height: '250px'}}
+            <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} style={{height: '230px'}}
                           onClick={() => props.history.push('/food-reviews/' + tile.id)} >
               <img src={tile.imageUrl} alt={tile.name} />
               <GridListTileBar
@@ -362,10 +362,10 @@ function PostFoodReview(props) {
   let [imageUrl, setImageUrl] = React.useState(null)
   let [rating, setRating] = React.useState(2)
   let [uploadStarted, setUploadStarted] = React.useState(false)
-  let [initialValues, setInitialValues] = React.useState(null)
+  let [initialValues, setInitialValues] = React.useState({})
 
-  if (id && id != 'post' && !initialValues) {
-    setInitialValues({name: '', brand: '', location: '', details: '', tags: ''})
+  if (id && id != 'post' && Object.keys(initialValues).length == 0) {
+    setInitialValues({name: '', brand: '', location: '', details: '', tags: ''})  // Needed for field labels to resize
     db.collection('foodReviews').doc(id).get().then(doc => {
       if (doc.exists) {
         let data = doc.data()
@@ -414,6 +414,7 @@ function PostFoodReview(props) {
     }
   }
 
+  // CSS to rotate portrait: transform = rotate(90deg) translate(-50%) scale(1.5)
   return (
     <Dialog
       aria-labelledby="Post Review"
@@ -439,7 +440,6 @@ function PostFoodReview(props) {
                   <label style={{cursor: 'pointer', marginTop: '0.5em'}}>
                     <Box id='photo-box' display='flex' width='100%' height='215px' style={{outline: 'none'}} bgcolor='gray'
                          border='1px solid gray' alignItems='center' justifyContent='center'>
-                      // CSS to rotate portrait: transform = rotate(90deg) translate(-50%) scale(1.5)
                       { imageUrl && <img src={imageUrl} height='100%' alt='Uploaded image' /> }
                       { !imageUrl && (uploadStarted ? <CircularProgressBlue /> : <PhotoCameraIcon />) }
                       <FileUploader
