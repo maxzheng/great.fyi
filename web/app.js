@@ -10,7 +10,11 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import CreateIcon from '@material-ui/icons/Create';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import DeleteIcon from '@material-ui/icons/Delete';
 import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import FastfoodIcon from '@material-ui/icons/Fastfood';
@@ -53,7 +57,7 @@ import chunk from 'lodash.chunk'
 import uuidv4 from 'uuid/v4';
 
 const homeTitle = 'Everything You Need to Know to Be Great!';
-const foodReviewsTitle = 'Delicious Food Reviews';
+const foodReviewsTitle = 'Delicious Food';
 const lifeGuideTitle = 'A Great Life Guide';
 
 const foodImagesUrl = 'https://storage.googleapis.com/great-fyi/food-reviews/images/'
@@ -357,6 +361,33 @@ function FoodReviews(props) {
   )
 }
 
+function DeleteAction(props) {
+  const [ask, setAsk] = React.useState(false)
+
+  return (
+    <div style={props.style}>
+      <DeleteIcon onClick={() => setAsk(true)} style={{cursor: 'pointer'}} />
+      <Dialog
+        maxWidth="xs"
+        aria-labelledby="confirmation-delete"
+        open={ask} >
+        <DialogTitle id="confirmation-delete">Delete Confirmation</DialogTitle>
+        <DialogContent>
+          Are you sure that you want to delete it?
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => setAsk(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => { setAsk(false); props.onConfirm() }} color="primary">
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  )
+}
+
 function PostFoodReview(props) {
   let { id } = useParams()
   let [imageUrl, setImageUrl] = React.useState(null)
@@ -364,7 +395,9 @@ function PostFoodReview(props) {
   let [uploadStarted, setUploadStarted] = React.useState(false)
   let [initialValues, setInitialValues] = React.useState({})
 
-  if (id && id != 'post' && Object.keys(initialValues).length == 0) {
+  const editing = id && id != 'post'
+
+  if (editing && Object.keys(initialValues).length == 0) {
     setInitialValues({name: '', brand: '', location: '', details: '', tags: ''})  // Needed for field labels to resize
     db.collection('foodReviews').doc(id).get().then(doc => {
       if (doc.exists) {
@@ -412,6 +445,14 @@ function PostFoodReview(props) {
           setSubmitting(false);
         });
     }
+  }
+
+  const handleDelete = () => {
+    db.collection("foodReviews")
+      .doc(id)
+      .delete()
+    props.setReloadData(true)
+    props.history.push('/food-reviews')
   }
 
   // CSS to rotate portrait: transform = rotate(90deg) translate(-50%) scale(1.5)
@@ -479,6 +520,8 @@ function PostFoodReview(props) {
                 <Field component={TextField} name="tags" label="Tags for filtering (comma separated)" fullWidth />
                 <br />
                 <br />
+                { editing && <DeleteAction onConfirm={handleDelete}
+                                           style={{float: 'left', marginTop: '0.3em'}} /> }
                 <Button variant="contained" className={props.classes.postButtons}
                         onClick={() => props.history.push('/food-reviews') }>
                 Cancel
@@ -556,7 +599,7 @@ function ResponsiveDrawer(props) {
       divider: true
     },
     '/food-reviews': {
-      name: 'Food Reviews',
+      name: 'Delicious Food',
       icon: <FastfoodIcon/>,
       title: foodReviewsTitle,
       divider: true
@@ -722,7 +765,6 @@ function App() {
         setLogin(false)
       }
   });
-
 
   return (
     <div className={classes.app}>
