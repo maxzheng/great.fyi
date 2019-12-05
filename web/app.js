@@ -521,8 +521,8 @@ function PostFoodReview(props) {
                 <Field component={TextField} name="tags" label="Tags for filtering (comma separated)" fullWidth />
                 <br />
                 <br />
-                { editing && <DeleteAction onConfirm={handleDelete}
-                                           style={{float: 'left', marginTop: '0.3em'}} /> }
+                { editing && initialValues.userId == props.user.uid &&
+                  <DeleteAction onConfirm={handleDelete} style={{float: 'left', marginTop: '0.3em'}} /> }
                 <Button variant="contained" className={props.classes.postButtons}
                         onClick={() => props.history.push('/food-reviews') }>
                 Cancel
