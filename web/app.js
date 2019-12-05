@@ -416,7 +416,7 @@ function PostFoodReview(props) {
     values.updatedAt = new Date()
     values.userId = props.user.uid
     values.userName = props.user.displayName.split(' ')[0]
-    values.tags = values.tags && values.tags.split(/, */) || []
+    values.tags = typeof values.tags == 'string' && values.tags && values.tags.split(/, */) || []
 
     if (initialValues.userId != values.userId)
       id = 'post'
