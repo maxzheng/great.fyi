@@ -214,7 +214,7 @@ function SecretRoute({ children, publicPath, ...rest }) {
         rest.user ? (
           children
         ) : (
-          <Redirect to={'#login' + rest.path + '|' + publicPath} />
+          <Redirect to={'#login' + window.location.pathname + '|' + publicPath} />
         )
       }
     />
@@ -507,6 +507,7 @@ function PostFoodReview(props) {
                     max={3}
                     size="large"
                     emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                    onClick={(e) => e.preventDefault() }
                     onChangeActive={(event, newRating) => {
                       if (newRating >= 1) setRating(newRating);
                     }}
