@@ -245,7 +245,7 @@ function ShareButtons(props) {
 function Home(props) {
   return (<div>
     <Typography paragraph>
-      We have <RLink to='/food-reviews'>delicious food reviews</RLink> and <RLink to='/life-guide'>a great life guide</RLink> so far. More to come later!
+      We have <RLink to='/delicious-food'>delicious food</RLink> and <RLink to='/life-guide'>a great life guide</RLink> so far. More to come later!
     </Typography>
     {props.user && <span>Welcome, {props.user.displayName}</span>}
 
@@ -330,7 +330,7 @@ function FoodReviews(props) {
         return <GridList className={props.classes.foodGridList} cols={cols}>
           {subset.map(tile => (
             <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} style={{height: '230px'}}
-                          onClick={() => props.history.push('/food-reviews/' + tile.id)} >
+                          onClick={() => props.history.push('/delicious-food/' + tile.id)} >
               <img src={tile.imageUrl} alt={tile.name} />
               <GridListTileBar
                 title={tile.name}
@@ -354,7 +354,7 @@ function FoodReviews(props) {
         </GridList>}
       )}
       <SpeedDials classes={props.classes} user={props.user} />
-      <SecretRoute path='/food-reviews/:id' publicPath='/food-reviews' user={props.user}>
+      <SecretRoute path='/delicious-food/:id' publicPath='/delicious-food' user={props.user}>
         <PostFoodReview user={props.user} classes={props.classes} history={props.history} setReloadData={setReloadData}/>
       </SecretRoute>
     </div>
@@ -426,7 +426,7 @@ function PostFoodReview(props) {
         .add(values)
         .then(docRef => {
           props.setReloadData(true)
-          props.history.push('/food-reviews')
+          props.history.push('/delicious-food')
         })
         .catch(function(error) {
           console.error("Error adding document: ", error);
@@ -438,7 +438,7 @@ function PostFoodReview(props) {
         .set(values)
         .then(docRef => {
           props.setReloadData(true)
-          props.history.push('/food-reviews')
+          props.history.push('/delicious-food')
         })
         .catch(function(error) {
           console.error("Error adding document: ", error);
@@ -452,7 +452,7 @@ function PostFoodReview(props) {
       .doc(id)
       .delete()
     props.setReloadData(true)
-    props.history.push('/food-reviews')
+    props.history.push('/delicious-food')
   }
 
   // CSS to rotate portrait: transform = rotate(90deg) translate(-50%) scale(1.5)
@@ -462,7 +462,7 @@ function PostFoodReview(props) {
       aria-describedby="Post review of delicious food"
       open={true}
       scroll='body'
-      onClose={() => props.history.push('/food-reviews') }
+      onClose={() => props.history.push('/delicious-food') }
       PaperProps={{
             style: {
               margin: "1em",
@@ -524,7 +524,7 @@ function PostFoodReview(props) {
                 { editing && initialValues.userId == props.user.uid &&
                   <DeleteAction onConfirm={handleDelete} style={{float: 'left', marginTop: '0.3em'}} /> }
                 <Button variant="contained" className={props.classes.postButtons}
-                        onClick={() => props.history.push('/food-reviews') }>
+                        onClick={() => props.history.push('/delicious-food') }>
                 Cancel
                 </Button>
                 <Button type='submit' variant="contained" color="primary" className={props.classes.postButtons}
@@ -545,7 +545,7 @@ function SpeedDials(props) {
 
   const actions = [
     { icon: <ShareIcon />, name: 'Share', onClick: () => { setOpen(false); setShareOpen(true) } },
-    { icon: <RLink to='/food-reviews/post' style={{ color: 'inherit', textDecoration: 'inherit'}}>
+    { icon: <RLink to='/delicious-food/post' style={{ color: 'inherit', textDecoration: 'inherit'}}>
             <CreateIcon style={{marginTop: '0.2em'}}/></RLink>, name: 'Post' },
   ];
 
@@ -599,7 +599,7 @@ function ResponsiveDrawer(props) {
       title: homeTitle,
       divider: true
     },
-    '/food-reviews': {
+    '/delicious-food': {
       name: 'Delicious Food',
       icon: <FastfoodIcon/>,
       title: foodReviewsTitle,
@@ -676,7 +676,7 @@ function ResponsiveDrawer(props) {
       <main className={classes.drawerContent}>
         <div className={classes.toolbar} />
         <Switch>
-          <Route path='/food-reviews'>
+          <Route path='/delicious-food'>
             <FoodReviews classes={classes} theme={theme} user={props.user} history={props.history}/>
           </Route>
           <Route path='/life-guide'>

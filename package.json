@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rollup -c",
     "deploy": "npm run build && firebase deploy",
-    "dev": "npm run build && firebase serve --host 0.0.0.0 "
+    "serve": "npm run build && firebase serve --host 0.0.0.0 "
   },
   "directories": {
     "doc": "docs",
