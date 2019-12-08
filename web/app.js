@@ -54,7 +54,6 @@ import { Formik, Field, Form } from 'formik';
 import { TextField } from 'formik-material-ui';
 import InfiniteScroll from 'react-infinite-scroller';
 
-
 import chunk from 'lodash.chunk'
 import uuidv4 from 'uuid/v4';
 
@@ -363,14 +362,17 @@ function FoodReviews(props) {
     }
   }
 
+  const loadingMsg = <Typography align='center' color='textSecondary' style={{width: '100%'}}>Loading...</Typography>
+
   return (
     <div className={props.classes.foodRoot}>
+      { items.length == 0 && loadingMsg }
       <InfiniteScroll
         pageStart={0}
         loadMore={fetchData}
         hasMore={hasMore}
         style={{display: "inline-flex", flexWrap: "wrap"}}
-        loader={<Typography color='textSecondary'>Loading...</Typography>}
+        loader={loadingMsg}
         >
         {chunk(items, cols).map(subset =>
           <GridList className={props.classes.foodGridList} cols={cols}>
@@ -460,7 +462,7 @@ function PostFoodReview(props) {
       db.collection("foodReviews")
         .add(values)
         .then(docRef => {
-          props.setReloadData(true)
+          props.setReloadData(-1)
           props.history.push('/delicious-food')
         })
         .catch(function(error) {
@@ -472,7 +474,7 @@ function PostFoodReview(props) {
         .doc(id)
         .set(values)
         .then(docRef => {
-          props.setReloadData(true)
+          props.setReloadData(-1)
           props.history.push('/delicious-food')
         })
         .catch(function(error) {
@@ -486,7 +488,7 @@ function PostFoodReview(props) {
     db.collection("foodReviews")
       .doc(id)
       .delete()
-    props.setReloadData(true)
+    props.setReloadData(-1)
     props.history.push('/delicious-food')
   }
 
