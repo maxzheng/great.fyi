@@ -52,6 +52,8 @@ import { createBrowserHistory } from 'history';
 import FileUploader from "react-firebase-file-uploader";
 import { Formik, Field, Form } from 'formik';
 import { TextField } from 'formik-material-ui';
+import InfiniteScroll from 'react-infinite-scroller';
+
 
 import chunk from 'lodash.chunk'
 import uuidv4 from 'uuid/v4';
@@ -66,8 +68,8 @@ const drawerWidth = 210;
 const useStyles = makeStyles(theme => ({
   app: {
     maxWidth: '100em',
-    paddingLeft: '1em',
-    paddingRight: '1em',
+    paddingLeft: '0.4em',
+    paddingRight: '0.4em',
     [theme.breakpoints.up('sm')]: {
       paddingLeft: '2em',
       paddingRight: '0em',
@@ -308,54 +310,87 @@ function FoodReviews(props) {
   const medium = useMediaQuery(props.theme.breakpoints.up('md'))
   const large = useMediaQuery(props.theme.breakpoints.up('lg'))
   const cols = large ? 3 : (medium ? 2 : 1)
+  const maxVisibleItems = cols * 5
 
-  let [tileData, setTileData] = React.useState([])
-  let [reloadData, setReloadData] = React.useState(true)
+  let [reviews, setReviews] = React.useState([])
+  let [items, setItems] = React.useState([])
+  let [reloadDataOnCols, setReloadDataOnCols] = React.useState(null)
+  let [hasMore, setHasMore] = React.useState(false)
 
-  if (reloadData) {
+  const reviewToItem = (review) =>
+    <GridListTile key={review.imageUrl} className={props.classes.foodGridListTile}
+                  style={{height: '250px'}}
+                  onClick={() => props.history.push('/delicious-food/' + review.id)} >
+      <img src={review.imageUrl} alt={review.name} />
+      <GridListTileBar
+        title={review.name}
+        classes={{
+          root: props.classes.foodTitleBar,
+          title: props.classes.foodTitle,
+        }}
+        actionIcon={
+          <Rating
+            name="rating"
+            value={review.rating}
+            max={3}
+            size="large"
+            style={{marginRight: '0.5em'}}
+            emptyIcon={<StarBorderIcon fontSize="inherit" />}
+          />
+        }
+      />
+    </GridListTile>
+
+  if (reloadDataOnCols != cols) {
     window.scrollTo(0, 0)
-    setReloadData(false)
+    setReloadDataOnCols(cols)
     db.collection('foodReviews').orderBy('updatedAt', 'desc').limit(100).get().then(res => {
-      let reviews = []
+      let revs = []
       res.forEach(doc => {
-        reviews.push({...doc.data(), id: doc.id})
+        revs.push({...doc.data(), id: doc.id})
       })
-      setTileData(reviews)
+      setReviews(revs)
+      setItems(revs.slice(0, maxVisibleItems))
+      setHasMore(true)
     })
+  }
+
+  const fetchData = (pageNum) => {
+    let sliceCount = items.length + maxVisibleItems
+    setItems(reviews.slice(0, sliceCount))
+    if (sliceCount >= reviews.length && reviews.length) {
+      setHasMore(false)
+    }
   }
 
   return (
     <div className={props.classes.foodRoot}>
-      {chunk(tileData, cols).map(subset => {
-        return <GridList className={props.classes.foodGridList} cols={cols}>
-          {subset.map(tile => (
-            <GridListTile key={tile.imageUrl} className={props.classes.foodGridListTile} style={{height: '230px'}}
-                          onClick={() => props.history.push('/delicious-food/' + tile.id)} >
-              <img src={tile.imageUrl} alt={tile.name} />
-              <GridListTileBar
-                title={tile.name}
-                classes={{
-                  root: props.classes.foodTitleBar,
-                  title: props.classes.foodTitle,
-                }}
-                actionIcon={
-                  <Rating
-                    name="rating"
-                    value={tile.rating}
-                    max={3}
-                    size="large"
-                    style={{marginRight: '0.5em'}}
-                    emptyIcon={<StarBorderIcon fontSize="inherit" />}
-                  />
-                }
-              />
-            </GridListTile>
-          ))}
-        </GridList>}
-      )}
+      <InfiniteScroll
+        pageStart={0}
+        loadMore={fetchData}
+        hasMore={hasMore}
+        style={{display: "inline-flex", flexWrap: "wrap"}}
+        loader={<Typography color='textSecondary'>Loading...</Typography>}
+        >
+        {chunk(items, cols).map(subset =>
+          <GridList className={props.classes.foodGridList} cols={cols}>
+            {subset.map(reviewToItem)}
+          </GridList>
+        )}
+      </InfiniteScroll>
+      { items.length >= 100 &&
+        <Typography color='textSecondary' style={{textAlign: 'center', width: "100%"}}>
+          <br />
+          There's probably more, but I am not gonna show ya.<br />
+          <Typography variant='caption' color='inherit'>
+            (Please use filters to look for what you want.)
+          </Typography>
+        </Typography>
+      }
       <SpeedDials classes={props.classes} user={props.user} />
       <SecretRoute path='/delicious-food/:id' publicPath='/delicious-food' user={props.user}>
-        <PostFoodReview user={props.user} classes={props.classes} history={props.history} setReloadData={setReloadData}/>
+        <PostFoodReview user={props.user} classes={props.classes} history={props.history}
+                        setReloadData={setReloadDataOnCols}/>
       </SecretRoute>
     </div>
   )

@@ -25,6 +25,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-firebase-file-uploader": "^2.4.3",
+    "react-infinite-scroller": "^1.2.4",
     "react-router-dom": "^5.1.2",
     "react-share": "^3.0.1",
     "semver": "^6.3.0",
