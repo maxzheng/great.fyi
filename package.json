@@ -19,6 +19,7 @@
     "bl": "^4.0.0",
     "formik": "^2.0.6",
     "formik-material-ui": "^1.0.0",
+    "install": "^0.13.0",
     "lodash.chunk": "^4.2.0",
     "prop-types": "^15.7.2",
     "randombytes": "^2.1.0",
@@ -29,7 +30,8 @@
     "react-router-dom": "^5.1.2",
     "react-share": "^3.0.1",
     "semver": "^6.3.0",
-    "styled-jsx": "^3.2.4"
+    "styled-jsx": "^3.2.4",
+    "use-query-params": "^0.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.7.2",

@@ -53,6 +53,7 @@ import FileUploader from "react-firebase-file-uploader";
 import { Formik, Field, Form } from 'formik';
 import { TextField } from 'formik-material-ui';
 import InfiniteScroll from 'react-infinite-scroller';
+import { useQueryParam, NumberParam, StringParam, QueryParamProvider } from 'use-query-params';
 
 import chunk from 'lodash.chunk'
 import uuidv4 from 'uuid/v4';
@@ -311,14 +312,19 @@ function FoodReviews(props) {
   const cols = large ? 3 : (medium ? 2 : 1)
   const maxVisibleItems = cols * 5
 
-  let [reviews, setReviews] = React.useState([])
-  let [items, setItems] = React.useState([])
-  let [reloadDataOnCols, setReloadDataOnCols] = React.useState(null)
-  let [hasMore, setHasMore] = React.useState(false)
+  const [reviews, setReviews] = React.useState([])
+  const [items, setItems] = React.useState([])
+  const [reloadDataOnCols, setReloadDataOnCols] = React.useState(null)
+  const [reloadDataOnUser, setReloadDataOnUser] = React.useState(null)
+  const [hasMore, setHasMore] = React.useState(false)
+  const [rating, setRating] = React.useState(1)
+
+  const [show, setShow] = useQueryParam('show', StringParam)
+  const [ratingFilter, setRatingFilter] = useQueryParam('rating', NumberParam)
 
   const reviewToItem = (review) =>
     <GridListTile key={review.imageUrl} className={props.classes.foodGridListTile}
-                  style={{height: '250px'}}
+                  style={{height: '242px'}}
                   onClick={() => props.history.push('/delicious-food/' + review.id)} >
       <img src={review.imageUrl} alt={review.name} />
       <GridListTileBar
@@ -340,17 +346,26 @@ function FoodReviews(props) {
       />
     </GridListTile>
 
-  if (reloadDataOnCols != cols) {
+  if (reloadDataOnCols != cols || reloadDataOnUser != props.user) {
     window.scrollTo(0, 0)
     setReloadDataOnCols(cols)
-    db.collection('foodReviews').orderBy('updatedAt', 'desc').limit(100).get().then(res => {
+    setReloadDataOnUser(props.user)
+
+    let foodReviewsRef = db.collection('foodReviews')
+    if (show == 'mine' && props.user) {
+      foodReviewsRef = foodReviewsRef.where('userId', '==', props.user.uid)
+    }
+    if (ratingFilter) {
+      foodReviewsRef = foodReviewsRef.where('rating', 'in', [1, 2, 3].slice(ratingFilter-1, 3))
+    }
+    foodReviewsRef.orderBy('updatedAt', 'desc').limit(100).get().then(res => {
       let revs = []
       res.forEach(doc => {
         revs.push({...doc.data(), id: doc.id})
       })
       setReviews(revs)
       setItems(revs.slice(0, maxVisibleItems))
-      setHasMore(true)
+      setHasMore(revs.length > 0)
     })
   }
 
@@ -366,20 +381,52 @@ function FoodReviews(props) {
 
   return (
     <div className={props.classes.foodRoot}>
-      { items.length == 0 && loadingMsg }
-      <InfiniteScroll
-        pageStart={0}
-        loadMore={fetchData}
-        hasMore={hasMore}
-        style={{display: "inline-flex", flexWrap: "wrap"}}
-        loader={loadingMsg}
-        >
-        {chunk(items, cols).map(subset =>
-          <GridList className={props.classes.foodGridList} cols={cols}>
-            {subset.map(reviewToItem)}
-          </GridList>
-        )}
-      </InfiniteScroll>
+      <Box display='inline-flex' width='100%' justifyContent='space-between' padding='0.1em 1em 0'>
+        { props.user &&
+            <Typography paragraph>
+              { (!show || show == 'all') && <Bold>All</Bold> }
+              { !!show && show != 'all' &&
+                <Link onClick={() => {setShow('all'); setReloadDataOnCols(-1) }} style={{cursor: 'pointer'}}>All</Link>
+              }
+              <Typography color='textSecondary' component='span'> | </Typography>
+              { show == 'mine' && <Bold>Mine</Bold> }
+              { show != 'mine' &&
+                <Link onClick={() => {setShow('mine'); setReloadDataOnCols(-1) }} style={{cursor: 'pointer'}}>Mine</Link>
+              }
+            </Typography>
+        }
+        { !props.user && <span />}
+        <Rating
+          name="ratingFilter"
+          value={ratingFilter}
+          max={3}
+          size="large"
+          emptyIcon={<StarBorderIcon fontSize="inherit" />}
+          onClick={(e) => { setRatingFilter(rating); setReloadDataOnCols(-1); e.preventDefault(); } }
+          onChangeActive={(event, newRating) => { if (newRating >= 1) setRating(newRating); }}
+          style={{position: "relative", top: "-0.1em"}}
+        />
+      </Box>
+      { reloadDataOnCols == -1 && loadingMsg }
+      { items.length == 0 && show == 'mine' &&
+          <Typography paragraph>
+            <RLink to='/delicious-food/post'>Post what you ate</RLink> in the last nice restaurant you visited!
+          </Typography>}
+      { items.length > 0 &&
+        <InfiniteScroll
+          pageStart={0}
+          loadMore={fetchData}
+          hasMore={hasMore}
+          style={{display: "inline-flex", flexWrap: "wrap"}}
+          loader={loadingMsg}
+          >
+          {chunk(items, cols).map(subset =>
+            <GridList className={props.classes.foodGridList} cols={cols}>
+              {subset.map(reviewToItem)}
+            </GridList>
+          )}
+        </InfiniteScroll>
+      }
       { items.length >= 100 &&
         <Typography color='textSecondary' style={{textAlign: 'center', width: "100%"}}>
           <br />
@@ -463,7 +510,7 @@ function PostFoodReview(props) {
         .add(values)
         .then(docRef => {
           props.setReloadData(-1)
-          props.history.push('/delicious-food')
+          props.history.push('/delicious-food?show=mine')
         })
         .catch(function(error) {
           console.error("Error adding document: ", error);
@@ -475,7 +522,7 @@ function PostFoodReview(props) {
         .set(values)
         .then(docRef => {
           props.setReloadData(-1)
-          props.history.push('/delicious-food')
+          props.history.push('/delicious-food?show=mine')
         })
         .catch(function(error) {
           console.error("Error adding document: ", error);
@@ -813,6 +860,10 @@ function App() {
 }
 
 ReactDOM.render(
-  <Router><App /></Router>,
+  <Router>
+    <QueryParamProvider ReactRouterRoute={Route}>
+      <App />
+    </QueryParamProvider>
+  </Router>,
   document.querySelector('#root'),
 );
