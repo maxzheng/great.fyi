@@ -1,6 +1,6 @@
 {
   "name": "great.fyi",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Web application for http://great.fyi",
   "main": "web/app.js",
   "scripts": {
